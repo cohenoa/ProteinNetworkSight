@@ -43,7 +43,7 @@ This file contains the `cal_string_suggestions` function used in the `/api/names
 
 ## Installation
 ### This is not a full installation for this project some parts are left out. (like a postgres installation with the STRING DB)
-## This is left out do to security resonses
+## This is left out do to security reasons
 
 1. Clone the repository.
 2. Install the required dependencies (e.g., Flask, Flask-CORS).
