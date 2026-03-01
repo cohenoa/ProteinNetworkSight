@@ -473,23 +473,10 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
 const applyNodeColor = (nodeType: 'pos' | 'neg', color: SupportedNodeColor) => {
   console.log("setting node color");
-  // setLayoutStop(false);
 
   cyRef.current?.nodes().forEach(function(node){
     node.data('color', (node.data('positive') !== (nodeType === 'pos')) ? node.data('color') : color);
   });
-
-  // const posNodes = cyRef.current?.nodes().filter(function(node){return node.data('positive')})
-  // const negNodes = cyRef.current?.nodes().filter(function(node){return !node.data('positive')})
-
-  // const newNodeColors = {
-  //   pos: posNodes ? curNodeColor.pos : color,
-  //   neg: negNodes ? negNodes[0].data('color') : color
-  // };
-  // const newNodeColors = {
-  //   pos: posNodes ? posNodes[0].data('color') : color,
-  //   neg: negNodes ? negNodes[0].data('color') : color
-  // };
 
   if (nodeType === 'pos') {
     setCurNodeColor({
@@ -503,10 +490,6 @@ const applyNodeColor = (nodeType: 'pos' | 'neg', color: SupportedNodeColor) => {
       neg: color,
     });
   }
-  // setCurNodeColor({
-  //   pos: posNodes ? posNodes[0].data('color') : color,
-  //   neg: negNodes ? negNodes[0].data('color') : color
-  // });
 }
 const applyNodeSize = (size: SupportedNodeSize) => {
   console.log("setting node size");
