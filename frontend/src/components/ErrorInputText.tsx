@@ -10,6 +10,8 @@ import Toggle from "react-toggle";
 import { ClipLoader } from "react-spinners";
 import { get, set } from "idb-keyval";
 
+import { NO_STRING_ID, NO_STRING_NAME } from "../Constants";
+
 enum validOption {
   noValue,
   disabled,
@@ -32,8 +34,8 @@ const ErrorInputText: FC<IErrorInputTextProps> = ({ orgName, stringName }) => {
         const newNamesMap = {
           ...namesStringMap,
           [orgName]: {
-            stringName: "other",
-            stringId: 0,
+            stringName: NO_STRING_NAME,
+            stringId: NO_STRING_ID,
           },
         };
         set("namesStringMap", newNamesMap);

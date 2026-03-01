@@ -15,6 +15,8 @@ import "../styles/StringSuggestions.css";
 import Switchable from "../components/Switchable";
 import { INamesStringMap } from "../@types/global";
 
+import { NO_STRING_ID, NO_STRING_NAME } from "../Constants"
+
 // Define a type for form values
 type namesFormValues = {
   [key: string]: string;
@@ -99,8 +101,8 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
         }
         else {
           namesStringMap_build[orgName] = {
-            stringName: "other",
-            stringId: 0,
+            stringName: NO_STRING_NAME,
+            stringId: NO_STRING_ID,
           };
         }
       })

@@ -2,6 +2,8 @@ import { FC } from "react";
 import { downloadExampleFile } from "../common/ExampleFileAction";
 import "../styles/Explanation.css";
 
+import { MAX_LINES_PER_FILE } from "../Constants";
+
 const FileUploadExplanation: FC = () => {
   return (
     <div className="explanation">
@@ -29,7 +31,7 @@ const FileUploadExplanation: FC = () => {
         </li>
         <li className="must-item">
           <i className="fa fa-exclamation-circle" />
-          Make sure the file has less then 2000 genes and 2 columns or more.
+          Make sure the file has less then {MAX_LINES_PER_FILE} genes and 2 columns or more.
         </li>
         <li className="must-item">
           <i className="fa fa-exclamation-circle" />

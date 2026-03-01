@@ -9,7 +9,7 @@ import { getExampleFile } from "../common/ExampleFileAction";
 import { set, setMany, clear } from "idb-keyval";
 import { INamesStringMap } from "../@types/global";
 
-const MAX_ROWS = 20000;
+import { MAX_LINES_PER_FILE, NO_STRING_ID, NO_STRING_NAME } from "../Constants";
 
 const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({
@@ -151,8 +151,8 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       }
     }
     
-    if (fileData.length > MAX_ROWS) {
-      setHasError(`File exceeds ${MAX_ROWS} rows. Please split it.`);
+    if (fileData.length > MAX_LINES_PER_FILE) {
+      setHasError(`File exceeds ${MAX_LINES_PER_FILE} rows. Please split it.`);
       return;
     }
 
@@ -202,7 +202,7 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       if (row[1]) {
         namesStringMap[row[0]] = { stringId: row[2], stringName: row[1] };
       } else {
-        namesStringMap[row[0]] = { stringId: 0, stringName: "other" };
+        namesStringMap[row[0]] = { stringId: NO_STRING_ID, stringName: NO_STRING_NAME };
       }
       row.splice(1, 2);
     });

@@ -5,6 +5,8 @@ import "react-switchable-next/dist/index.esm.css";
 import { INamesStringMap } from "../@types/global";
 import "../styles/Switchable.css";
 
+import { NO_STRING_ID, NO_STRING_NAME } from "../Constants";
+
 const Switchable: FC<ISwitchableProps> = ({setNamesStringMap, orgName, suggestions, selected}) => {
   const valDelim = ":";
 
@@ -52,12 +54,12 @@ const Switchable: FC<ISwitchableProps> = ({setNamesStringMap, orgName, suggestio
       );
     });
 
-    const otherKey = "other";
-    const otherValue = createValue("other", 0);
+    const otherKey = NO_STRING_NAME;
+    const otherValue = createValue(NO_STRING_NAME, NO_STRING_ID);
     items.push(
       <Item
         key={otherKey}
-        default={selected === "other"}
+        default={selected === NO_STRING_NAME}
         value={otherValue}
       >
         {otherKey}

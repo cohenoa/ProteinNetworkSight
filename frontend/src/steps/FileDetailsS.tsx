@@ -13,6 +13,8 @@ import { headers } from "../assets/DefualtFile";
 import ThresholdsModal from '../components/thresholdModal';
 import { threshMap } from "../@types/global";
 
+import { defaultThresholds } from "../Constants";
+
 type formValues = {
   idHeader: string;
   vectorsPrefix: string;
@@ -23,7 +25,7 @@ type formValues = {
   thresholds:{};
 };
 
-const defaultThresholds: threshMap = {pos: 0.08, neg: -0.08};
+// const defaultThresholds: threshMap = {pos: 0.08, neg: -0.08};
 
 const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({ updateFileDetails, updateIsLoading ,updateThresholds, updateShowError});

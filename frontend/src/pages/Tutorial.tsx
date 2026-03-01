@@ -24,6 +24,8 @@ import Menu_SaveGraphs from '../assets/tutorial images/Menu_SaveGraphs.png';
 import { openLink } from "../common/GeneralCommon";
 import { downloadExampleFile } from "../common/ExampleFileAction";
 
+import { MAX_LINES_PER_FILE } from "../Constants";
+
 const Tutorial: FC = () => {
   const stringdbLink = "https://string-db.org/";
   const drugsDatabaseLink = "https://data.tp53.org.uk/cancerdrugs.php";
@@ -76,7 +78,7 @@ const Tutorial: FC = () => {
           <p className="t-p">
             For the user to begin, they must upload an Excel / CSV / TSV file on a single sheet (or a TXT that represents an Excel file), 
             where each row represents a protein or gene and each column represents a feature. 
-            The file must not contains more than 2000 rows, 
+            The file must not contains more than {MAX_LINES_PER_FILE} rows, 
             where each row represents a protein/gene and the columns are features to be analysed. 
             The file should contain a column of protein/gene names as well as additional column(s) of numeric values. 
             These numeric values represent gene/protein scores or quantitative metrics—such as loadings obtained from Principal Component Analysis (PCA), 

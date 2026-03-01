@@ -11,13 +11,15 @@ import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import "../styles/Result.css";
 import ErrorScreen from "../components/ErrorScreen";
 import CytoscapejsComponentself from "../components/Cytoscapejs";
-import { set, get, getMany, update } from 'idb-keyval';
+import { set, getMany, update } from 'idb-keyval';
 import {
   INamesStringMap,
   IVectorsValues,
 } from "../@types/global";
 import { threshMap } from "../@types/global";
 import { IStepProps } from "../@types/props";
+
+import { MAX_NODES_PER_GRAPH, NO_STRING_ID } from "../Constants";
 
 const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({
@@ -35,6 +37,13 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   // const missingNodes = useRef<{orgName: string, value: number}[]>([]);
   const [missingNodes, setMissingNodes] = useState<{orgName: string, value: number}[]>([]);
   const [openTable, setOpenTable] = useState<boolean>(false);
+  const [tooManyModal, setTooManyModal] = useState<{[key: string]: number}>(
+    Object.fromEntries(state.headers.map(header => [header, 0]))
+  );
+  const [tooManyThresholds, setTooManyThresholds] = useState<threshMap>({
+    pos: state.thresholds[clickedVector].pos,
+    neg: state.thresholds[clickedVector].neg,
+  });
   const [thresholds, setThresholds] = useState<threshMap>({
     pos: state.thresholds[clickedVector].pos,
     neg: state.thresholds[clickedVector].neg,
@@ -102,14 +111,17 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
       missingNodes: {orgName: string, value: number}[], 
       namesStringMap: INamesStringMap) => {
 
+
     if (!graphData) return false;
+
     if (thresholds.pos !== state.thresholds[clickedVector].pos || thresholds.neg !== state.thresholds[clickedVector].neg) return false;
     
     for (const missingNode of missingNodes){
-      if (namesStringMap[missingNode.orgName].stringName === "other") return false;
+      if (namesStringMap[missingNode.orgName].stringId !== NO_STRING_ID) return false;
     }
+    
     for (const node of graphData.nodes) {
-      if (namesStringMap[node.orgName].stringName === "other") return false;
+      if (namesStringMap[node.id].stringId === NO_STRING_ID) return false;
     }
     return true;
   }
@@ -121,6 +133,7 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     actions.updateIsLoading({ isLoading: true });
 
     getMany([vectorName + "_graph", "namesStringMap"]).then(([val, namesStringMap]) => {
+      console.log("val: ", val);
       if (val && isGraphMemValuesValid(val.graphData, val.thresholds, val.missingNodes, namesStringMap as INamesStringMap)) {
         console.log("graph data from mem: ", val.graphData);
         console.log("thresholds from mem: ", val.thresholds);
@@ -148,7 +161,7 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           Object.entries(namesStringMap as INamesStringMap).forEach(([orgName, { stringName, stringId }]) => {
             const val = values_map[orgName];
             if (val > state.thresholds[clickedVector].pos || val < state.thresholds[clickedVector].neg) {
-              if (stringName === "other"){
+              if (stringId === NO_STRING_ID){
                 missing.push({orgName: orgName, value: val});
               }
               else{
@@ -158,6 +171,13 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
               }
             }
           });
+
+          if (idsList.length > MAX_NODES_PER_GRAPH && tooManyModal[clickedVector] >= 0){
+            console.log("too many nodes(" + idsList.length + "), " + tooManyModal[clickedVector]);
+            setTooManyThresholds({...state.thresholds[clickedVector]});
+            setTooManyModal({...tooManyModal, [clickedVector]: idsList.length});
+            return;
+          }
 
           setMissingNodes(missing);
 
@@ -236,6 +256,54 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
                 alertLoading={() => {}}
               />
             )}
+          </div>
+        </div>
+      )}
+      {tooManyModal[clickedVector] > 0 && (
+        <div className="tooManyModal">
+          <div className="tooManyModal-content">
+            <p>Your requested graph <b>will contain {tooManyModal[clickedVector]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
+            <p>if you wish to proceed anyway, please note that you may experience some performance issues</p>
+            <br/>
+            <p>Note: This message will appear untill there are at most {MAX_NODES_PER_GRAPH} nodes and it is individual to each graph</p>
+            <div className="threashold-row">
+              <label className="thresholdTitle" htmlFor="positiveThreshold">P. Threshold: </label>
+              <input
+                id="positiveThreshold"
+                type="number"
+                step="0.01"
+                className="text-input"
+                min={0}
+                max={1}
+                value={tooManyThresholds.pos}
+                required
+                onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, pos: Number(e.target.value) })}
+              />
+              <label className="thresholdTitle" htmlFor="negativeThreshold">N. Threshold: </label>
+
+              <input
+                id="negativeThreshold"
+                type="number"
+                step="0.01"
+                className="text-input"
+                min={-1}
+                max={0}
+                value={tooManyThresholds.neg}
+                required
+                onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, neg: Number(e.target.value) })}
+              />
+            </div>
+            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+              <button type="button" className="btn btn--warning" onClick={() => {
+                setTooManyModal({...tooManyModal, [clickedVector]: -1});
+                actions.updateThresholds({thresholds: {...state.thresholds, [clickedVector]: {...tooManyThresholds}}});
+              }}>CONTINUE ANYWAY</button>
+              <button type="button" className="btn btn--outline" onClick={() => {
+                if (thresholds == state.thresholds[clickedVector]) return;
+                setTooManyModal({...tooManyModal, [clickedVector]: 0});
+                actions.updateThresholds({thresholds: {...state.thresholds, [clickedVector]: {...tooManyThresholds}}});
+              }}>UPDATE THRESHOLDS</button>
+            </div>
           </div>
         </div>
       )}

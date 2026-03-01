@@ -91,9 +91,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       console.log("layout stop on cytoscape");
       setLayoutStop(true);
       alertLoading();
-      // setTimeout(() => {
-      //   alertLoading();
-      // }, 100);
     }
   });
 

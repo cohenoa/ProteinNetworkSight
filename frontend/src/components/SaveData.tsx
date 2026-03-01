@@ -8,6 +8,8 @@ import { IButtonConfig, nameStatus, replaceNameStatus } from "../@types/props";
 import { write, utils } from "xlsx";
 import { INamesStringMap } from "../@types/global";
 
+import { NO_STRING_ID, NO_STRING_NAME } from "../Constants";
+
 const SaveData = forwardRef((props, ref) => {
 
     const { state, actions } = useStateMachine({
@@ -35,10 +37,14 @@ const SaveData = forwardRef((props, ref) => {
                 let orgSTRINGname = match.stringName;
                 let orgSTRINGId = String(match.stringId);
 
-                if (orgSTRINGId === "0") {
+                if (orgSTRINGId === String(NO_STRING_ID)) {
                     orgSTRINGname = "";
                     orgSTRINGId = "";
                 };
+                // if (orgSTRINGId === "0") {
+                //     orgSTRINGname = "";
+                //     orgSTRINGId = "";
+                // };
 
                 if (name in replacementMap && replacementMap[name].accepted) {
                     orgName = replacementMap[name].string_name;
@@ -102,10 +108,10 @@ const SaveData = forwardRef((props, ref) => {
 
             if (name in suggestionsObj.alternative_match) {
                 altmap[name] = { string_name: match.stringName, string_id: match.stringId, accepted: false } as replaceNameStatus;
-            } else if (suggestionsObj.no_match.includes(name) && match.stringId !== 0) {
+            } else if (suggestionsObj.no_match.includes(name) && match.stringId !== NO_STRING_ID) {
                 manmap[name] = {string_name: match.stringName, string_id: match.stringId, accepted: false} as replaceNameStatus;
             }
-            else if (match.stringId === 0) {
+            else if (match.stringId === NO_STRING_ID) {
                 unMatched[name] = {accepted: false} as nameStatus;
             }
         }

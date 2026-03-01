@@ -38,6 +38,20 @@
   transition: all 0.3s ease-out;
 }
 
+.btn--warning {
+  background-color: transparent;
+  color: #1a1a1a;
+  border: 1px solid #d97706;
+  transition: all 0.3s ease-out;
+}
+.btn--warning:enabled:hover {
+  transition: all 0.3s ease-out;
+  color: black;
+  background-color: #f3c88fc7;
+  /* background-color: #fff3cd; */
+  transition: 250ms;
+}
+
 .btn--small {
   height: 45px;
   width: 60px;
