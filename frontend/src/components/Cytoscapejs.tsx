@@ -479,17 +479,34 @@ const applyNodeColor = (nodeType: 'pos' | 'neg', color: SupportedNodeColor) => {
     node.data('color', (node.data('positive') !== (nodeType === 'pos')) ? node.data('color') : color);
   });
 
-  const posNodes = cyRef.current?.nodes().filter(function(node){return node.data('positive')})
-  const negNodes = cyRef.current?.nodes().filter(function(node){return !node.data('positive')})
+  // const posNodes = cyRef.current?.nodes().filter(function(node){return node.data('positive')})
+  // const negNodes = cyRef.current?.nodes().filter(function(node){return !node.data('positive')})
 
-  const newNodeColors = {
-    pos: posNodes ? posNodes[0].data('color') : color,
-    neg: negNodes ? negNodes[0].data('color') : color
-  };
+  // const newNodeColors = {
+  //   pos: posNodes ? curNodeColor.pos : color,
+  //   neg: negNodes ? negNodes[0].data('color') : color
+  // };
+  // const newNodeColors = {
+  //   pos: posNodes ? posNodes[0].data('color') : color,
+  //   neg: negNodes ? negNodes[0].data('color') : color
+  // };
 
-  console.log(newNodeColors);
-
-  setCurNodeColor(newNodeColors);
+  if (nodeType === 'pos') {
+    setCurNodeColor({
+      ...curNodeColor,
+      pos: color,
+    });
+  }
+  else{
+    setCurNodeColor({
+      ...curNodeColor,
+      neg: color,
+    });
+  }
+  // setCurNodeColor({
+  //   pos: posNodes ? posNodes[0].data('color') : color,
+  //   neg: negNodes ? negNodes[0].data('color') : color
+  // });
 }
 const applyNodeSize = (size: SupportedNodeSize) => {
   console.log("setting node size");

@@ -15,9 +15,9 @@ services:
       - medmolnet-beta-network
     environment:
       # for local tests
-      - REACT_APP_API_URL=http://localhost
+      # - REACT_APP_API_URL=http://localhost
       # to test with real backend
-      # - REACT_APP_API_URL=https://proteinnetworksight.jce.ac/
+      - REACT_APP_API_URL=https://proteinnetworksight.jce.ac/
 
   medmolnet-back:
     image: medmolnet-backend
