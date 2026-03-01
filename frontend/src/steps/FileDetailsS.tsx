@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { IStepProps } from "../@types/props";
 import { useStateMachine } from "little-state-machine";
-import { updateFileDetails, updateIsLoading, updateThresholds, updateShowError } from "../common/UpdateActions";
+import { updateFileDetails, updateIsLoading, updateThresholds, updateShowError, updateTooManyModal } from "../common/UpdateActions";
 import { OptionType } from "../@types/json";
 import WindowedSelect from "react-windowed-select";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -28,7 +28,7 @@ type formValues = {
 // const defaultThresholds: threshMap = {pos: 0.08, neg: -0.08};
 
 const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
-  const { state, actions } = useStateMachine({ updateFileDetails, updateIsLoading ,updateThresholds, updateShowError});
+  const { state, actions } = useStateMachine({ updateFileDetails, updateIsLoading ,updateThresholds, updateShowError, updateTooManyModal});
   const [selectedOption, setSelectedOption] = useState<OptionType>({...state.organism});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -118,6 +118,8 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
         vectorsHeaders: vectorsHeaders,
         thresholds: thresholds,
       });
+
+      actions.updateTooManyModal({tooManyModal: Object.fromEntries(vectorsHeaders.map((header) => [header, 0]))});
 
       actions.updateIsLoading({ isLoading: false });
       goNextStep();

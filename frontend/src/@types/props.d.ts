@@ -1,6 +1,6 @@
 import { Font } from "three/examples/jsm/loaders/FontLoader";
 import { IOthers } from "./forms";
-import { threshMap } from "./global";
+import { Missing, threshMap } from "./global";
 import { SupportedLayout, SupportedNodeColor, SupportedNodeSize, SupportedOpacity } from "../common/GraphSettings";
 import { ICustomNode } from "./graphs";
 /*
@@ -83,7 +83,7 @@ export interface IGraphBarProps {
   setOpenTable: React.Dispatch<React.SetStateAction<boolean>>;
   nodesNum: number;
   linksNum: number;
-  missingNodes: {orgName: string; value: number}[];
+  missingNodes: Missing;
   thresholds: threshMap;
   setThresholds: React.Dispatch<React.SetStateAction<threshMap>>;
 }

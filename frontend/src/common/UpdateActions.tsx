@@ -153,3 +153,14 @@ export function updateSortTable(
     ...payload,
   };
 }
+
+export function updateTooManyModal(
+  state: GlobalState,
+  payload: { tooManyModal: {[x: string]: number;} }
+): GlobalState {
+  console.log(payload);
+  return {
+    ...state,
+    ...payload,
+  };
+}

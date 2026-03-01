@@ -1,21 +1,24 @@
 import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from "react";
 import { useStateMachine } from "little-state-machine";
-import { updateIsLoading, updateShowError } from "../common/UpdateActions";
-import { get, getMany, setMany } from 'idb-keyval';
-import { makePostRequest } from "../common/PostRequest";
+import { updateIsLoading, updateShowError, updateThresholds, updateTooManyModal } from "../common/UpdateActions";
+import { get, setMany, update } from 'idb-keyval';
 import WindowedSelect from "react-windowed-select";
 import { ICustomAllGraphData, ICustomGraphData } from "../@types/graphs";
 import CytoscapejsComponentself from "../components/Cytoscapejs";
 import "../styles/SaveGraphs.css";
+import "../styles/TooManyModal.css";
 import { graphRef } from "../@types/props";
 import { GraphSettings, GraphsStatus, getWindowSelectItem } from "../common/GraphSettings";
 import { copySettings, baseDownloadAllGraphSetting, supportedSettings, getWindowSelectItemByValue } from "../common/GraphSettings";
 import {
-  INamesStringMap,
+  Missing,
   threshMap,
 } from "../@types/global";
 import JSZip from "jszip";
 import LoadingBarComponent from "./LoadingBar";
+
+import { MAX_NODES_PER_GRAPH, defaultThresholds } from '../Constants';
+import { getGraphOfVector } from '../common/Helpers';
 
 type FileEntry = {
   filename: string;
@@ -41,16 +44,31 @@ const SaveGraphs = forwardRef((props, ref) => {
     const { state, actions } = useStateMachine({
         updateIsLoading,
         updateShowError,
+        updateThresholds,
+        updateTooManyModal
     });
 
     const [applyAllStatus, setApplyAllStatus] = useState<GraphSettings>(copySettings(baseDownloadAllGraphSetting, false));
     const [graphsStatus, setGraphsStatus] = useState<GraphsStatus>({});
     const [usePresetWhenPossible, setUsePresetWhenPossible] = useState<boolean>(false);
 
+    // const [tooManyModal, setTooManyModal] = useState<{[key: string]: number}>(
+    //     Object.fromEntries(state.vectorsHeaders.map(header => [header, 0]))
+    // );
+    const [tooManyThresholds, setTooManyThresholds] = useState<threshMap>({
+        pos: defaultThresholds.pos,
+        neg: defaultThresholds.neg,
+    });
+    const [thresholds, setThresholds] = useState<threshMap>({
+        pos: state.thresholds[state.vectorsHeaders[0]].pos,
+        neg: state.thresholds[state.vectorsHeaders[0]].neg,
+    });
+
     const [currGraphBuildIdx, setCurrGraphBuildIdx] = useState<number | null>(null);
     const [currGraphData, setCurrGraphData] = useState<ICustomGraphData | null>(null);
-    const [currGraphRef, setCurrGraphRef] = useState<graphRef>();
+    const [currGraphRef, setCurrGraphRef] = useState<graphRef>(React.createRef<graphRef>() as graphRef);
 
+    const allGraphData = useRef<ICustomAllGraphData>({});
     const graphIdxRef = useRef<number>(0);
     const phaseRef = useRef<BuildPhase>(BuildPhase.IDLE);
     const numApplyedRef = useRef<number>(0);
@@ -98,63 +116,77 @@ const SaveGraphs = forwardRef((props, ref) => {
         setGraphsStatus(newGraphStatus);
     }
 
+    function kickOffBuild() {
+        console.log("kickOffBuild");
+        const vector = state.vectorsHeaders[graphIdxRef.current];
+        getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, state.tooManyModal[vector] < 0, handleData, handleError).then((res) => {
+            if (typeof res === "number") {
+                console.log("too many modal: " + res);
+                console.log(vector);
+                // setTooManyModal({ ...tooManyModal, [vector]: res });
+                actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [vector]: res } });
+                setTooManyThresholds({...state.thresholds[vector]});
+                setThresholds({...state.thresholds[vector]});
+                return;
+            }
+    
+            res = res as {graphData: ICustomGraphData | null, missingNodes: Missing};
+    
+            if (res.graphData) {
+                console.log("graph data: ", res.graphData);
+                allGraphData.current[vector] = res.graphData;
+                phaseRef.current = BuildPhase.APPLY_SETTINGS;
+                setCurrGraphRef(React.createRef<graphRef>() as graphRef);
+                setCurrGraphData(res.graphData);
+                setCurrGraphBuildIdx(graphIdxRef.current);
+                setThresholds(state.thresholds[graphIdxRef.current]);
+            }
+        });
+    }
+
+    function handleData(jsonString: string) {
+        const tempGraphData: ICustomGraphData = JSON.parse(jsonString);
+        const vector = state.vectorsHeaders[graphIdxRef.current];
+        update(vector + "_graph", (oldValue) => {
+            return {
+            ...oldValue,
+            graphData: tempGraphData,
+            };
+        });
+
+        allGraphData.current[vector] = tempGraphData;
+        phaseRef.current = BuildPhase.APPLY_SETTINGS;
+        setCurrGraphRef(React.createRef<graphRef>() as graphRef);
+        setCurrGraphData(tempGraphData);
+        setCurrGraphBuildIdx(graphIdxRef.current);
+        setThresholds(state.thresholds[graphIdxRef.current]);
+    }
+
     useImperativeHandle(ref, () => ({
         getFormData: async () => {
             actions.updateIsLoading({ isLoading: true });
-            
-            const [ids_arr, namesStringMap] = await getMany(["proteinsNames", "namesStringMap"]);
-            const idsList: number[] = [];
-            const stringNames: string[] = [];
-            const orgNames: string[] = [];
 
-
-            Object.entries(namesStringMap as INamesStringMap).forEach(([orgName, { stringName, stringId }]) => {
-                idsList.push(stringId);
-                stringNames.push(stringName);
-                orgNames.push(orgName);
-            });
-
-            let body = {
-                headers_data: {},
-                ids: idsList,
-                proteins: orgNames,
-                string_names: stringNames,
-                score_thresh: state.scoreThreshold,
-            };
-
-            const uncalculatedHeadersData: { [key: string]: { values_map: { [key: string]: number }; thresh_pos: number; thresh_neg: number; } } = {};
-            
-            const memValues = await getMany(state.vectorsHeaders.map((key) => key + "_graph"));
-            memValues.forEach((val: {graphData: ICustomGraphData, thresholds: threshMap}, index) => {
-                const key = state.vectorsHeaders[index];
-
-                if (!val || !val.graphData || (val.thresholds as threshMap).pos !== state.thresholds[key].pos || (val.thresholds as threshMap).neg !== state.thresholds[key].neg) {
-                    uncalculatedHeadersData[key] = {
-                        values_map: {},
-                        thresh_pos: state.thresholds[key].pos,
-                        thresh_neg: state.thresholds[key].neg,
-                    };
-                }
-            });
-
-            body.headers_data = uncalculatedHeadersData;
-
-            const uncalculatedHeaders: string[] = Object.keys(uncalculatedHeadersData);
-
-            await getMany(uncalculatedHeaders.map((key) => key + "_data")).then((values) => {
-                values.forEach((values_arr, index) => {
-                    const key = uncalculatedHeaders[index].replace("_data", "");
-                    const values_map: { [key: string]: number } = {};
-                    for (let i = 0; i < values_arr.length; i++) {
-                        values_map[ids_arr[i]] = values_arr[i];
-                    }
-                    uncalculatedHeadersData[key].values_map = values_map;
-                })
-                console.log(body);
-                makePostRequest(JSON.stringify(body), "saveGraphs", handleJsonGraphData, handleError);
-            })
-
-            return "downloaded graphs";
+            console.log("starting process")
+            blobsRef.current = new Array(state.vectorsHeaders.length).fill(null);
+            graphIdxRef.current = 0;
+            kickOffBuild();
+            // const vector = state.headers[graphIdxRef.current];
+            // getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, tooManyModal[vector] >= 0, handleData, handleError).then((res) => {
+            //     if (typeof res === "number") {
+            //         setTooManyModal({ ...tooManyModal, [vector]: res });
+            //         setTooManyThresholds({...state.thresholds[vector]});
+            //         return;
+            //     }
+        
+            //     res = res as {graphData: ICustomGraphData | null, missingNodes: Missing};
+        
+            //     if (res.graphData) {
+            //         allGraphData.current[vector] = res.graphData;
+            //         setCurrGraphRef(React.createRef<graphRef>() as graphRef);
+            //         setCurrGraphBuildIdx(graphIdxRef.current);
+            //         setThresholds(state.thresholds[graphIdxRef.current]);
+            //     }
+            // });
         }
     }));
 
@@ -186,12 +218,13 @@ const SaveGraphs = forwardRef((props, ref) => {
             refidx: idx,
             stateIdx: currGraphBuildIdx,
             ref: ref,
+            phase: phaseRef.current,
             time: performance.now()
         });
 
         if (!ref) {
             setTimeout(() => {
-                console.log("what about now?", {
+                console.log("what about now? - ref", {
                     refidx: graphIdxRef.current,
                     stateIdx: currGraphBuildIdx,
                     ref: currGraphRef?.current,
@@ -204,6 +237,15 @@ const SaveGraphs = forwardRef((props, ref) => {
         };
 
         if (currGraphBuildIdx !== idx){
+            setTimeout(() => {
+                console.log("what about now? - idx", {
+                    refidx: graphIdxRef.current,
+                    stateIdx: currGraphBuildIdx,
+                    ref: currGraphRef?.current,
+                    time: performance.now()
+                })
+                if (currGraphBuildIdx !== idx) return;
+            }, 1000)
             return;
         }
 
@@ -292,28 +334,34 @@ const SaveGraphs = forwardRef((props, ref) => {
 
                 blobsRef.current[idx] = ref.getGraphBlob(thisGraph.fileType.current?.value);
 
-                // Move forward
                 if (idx + 1 === state.vectorsHeaders.length) {
                     finishAllGraphs();
                     phaseRef.current = BuildPhase.IDLE;
+                    graphIdxRef.current = 0;
+                    allGraphData.current = {};
                     setCurrGraphBuildIdx(null);
+                    setCurrGraphData(null);
                     actions.updateIsLoading({ isLoading: false });
                     return;
                 }
 
-                phaseRef.current = BuildPhase.APPLY_SETTINGS;
+                phaseRef.current = BuildPhase.IDLE;
+                delete allGraphData.current[graphIdxRef.current];
                 graphIdxRef.current += 1;
-                get(state.vectorsHeaders[graphIdxRef.current] + "_graph").then((nextData) => {
-                    console.log("SET NEXT GRAPH", {
-                        refidx: graphIdxRef.current,
-                        stateIdx: currGraphBuildIdx,
-                        ref: ref,
-                        time: performance.now()
-                    })
-                    setCurrGraphData(nextData.graphData);
-                    console.log("next graph index: ", graphIdxRef.current);
-                    setCurrGraphBuildIdx(graphIdxRef.current);
-                });
+
+                kickOffBuild();
+
+                // get(state.vectorsHeaders[graphIdxRef.current] + "_graph").then((nextData) => {
+                //     console.log("SET NEXT GRAPH", {
+                //         refidx: graphIdxRef.current,
+                //         stateIdx: currGraphBuildIdx,
+                //         ref: ref,
+                //         time: performance.now()
+                //     })
+                //     setCurrGraphData(nextData.graphData);
+                //     console.log("next graph index: ", graphIdxRef.current);
+                //     setCurrGraphBuildIdx(graphIdxRef.current);
+                // });
                 return;
             }
 
@@ -483,15 +531,23 @@ const SaveGraphs = forwardRef((props, ref) => {
         )
     }
 
+    useEffect(() => {
+        setThresholds({
+            pos: state.thresholds[state.vectorsHeaders[graphIdxRef.current ?? 0]].pos,
+            neg:  state.thresholds[state.vectorsHeaders[graphIdxRef.current ?? 0]].neg,
+        });
+        if (graphIdxRef.current){
+            kickOffBuild();
+        }
+    }, [state.thresholds]);
+
     const getPercentage = () => {
-        const fullBar = state.vectorsHeaders.length + 1
-        if (currGraphBuildIdx === null) return 0
-        return Math.round(((1 + currGraphBuildIdx) / fullBar) * 100)
+        const fullBar = state.vectorsHeaders.length
+        return Math.round(((graphIdxRef.current) / fullBar) * 100)
     }
 
     const getLabel = () => {
-        if (currGraphBuildIdx === null) return "getting graphs's data"
-        return "Building graph " + state.vectorsHeaders[currGraphBuildIdx]
+        return "Building graph " + state.vectorsHeaders[graphIdxRef.current]
     }
 
     return state.isLoading ? (
@@ -501,6 +557,54 @@ const SaveGraphs = forwardRef((props, ref) => {
                 percent={getPercentage()} 
                 label={getLabel()}
             />
+            {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]] > 0 && (
+                <div className="tooManyModal">
+                    <div className="tooManyModal-content">
+                    <p>The graph for {state.vectorsHeaders[graphIdxRef.current]}<b> will contain {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
+                    <p>if you wish to proceed anyway, please note that you may experience some performance issues</p>
+                    <br/>
+                    <p>Note: This message will appear until there are at most {MAX_NODES_PER_GRAPH} nodes and it is individual to each graph</p>
+                    <div className="threashold-row">
+                        <label className="thresholdTitle" htmlFor="positiveThreshold">P. Threshold: </label>
+                        <input
+                        id="positiveThreshold"
+                        type="number"
+                        step="0.01"
+                        className="text-input"
+                        min={0}
+                        max={1}
+                        value={tooManyThresholds.pos}
+                        required
+                        onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, pos: Number(e.target.value) })}
+                        />
+                        <label className="thresholdTitle" htmlFor="negativeThreshold">N. Threshold: </label>
+        
+                        <input
+                        id="negativeThreshold"
+                        type="number"
+                        step="0.01"
+                        className="text-input"
+                        min={-1}
+                        max={0}
+                        value={tooManyThresholds.neg}
+                        required
+                        onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, neg: Number(e.target.value) })}
+                        />
+                    </div>
+                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                        <button type="button" className="btn btn--warning" onClick={() => {
+                        actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [state.vectorsHeaders[graphIdxRef.current]]: -1 } });
+                        actions.updateThresholds({thresholds: {...state.thresholds, [state.vectorsHeaders[graphIdxRef.current]]: {...tooManyThresholds}}});
+                        }}>CONTINUE ANYWAY</button>
+                        <button type="button" className="btn btn--outline" onClick={() => {
+                        if (thresholds == state.thresholds[state.vectorsHeaders[graphIdxRef.current]]) return;
+                        actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [state.vectorsHeaders[graphIdxRef.current]]: 0 } });
+                        actions.updateThresholds({thresholds: {...state.thresholds, [state.vectorsHeaders[graphIdxRef.current]]: {...tooManyThresholds}}});
+                        }}>UPDATE THRESHOLDS</button>
+                    </div>
+                    </div>
+                </div>
+                )}
             {renderInvisibleGraph()}
         </div>
     ) : (

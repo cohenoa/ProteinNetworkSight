@@ -15,5 +15,6 @@ export const emptyState: GlobalState = {
   isSetNamesMap: false,
   showError: false,
   thresholds:{},
+  tooManyModal:{},
   sortTable: Array<ColumnState>(),
 };

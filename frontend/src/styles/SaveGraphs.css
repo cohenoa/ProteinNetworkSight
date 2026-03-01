@@ -86,9 +86,9 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    z-index: 1000;
+    z-index: 1;
     visibility: hidden;
-    height: 80%;
-    width: 80%;
+    height: 60%;
+    width: 60%;
     overflow-y: scroll;
 }

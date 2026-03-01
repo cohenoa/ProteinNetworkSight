@@ -35,6 +35,7 @@ declare module "little-state-machine" {
     isSetNamesMap: boolean;
     showError:boolean
     thresholds:{[x: string]: threshMap;}
+    tooManyModal:{[x: string]: number;}
     sortTable:Array<ColumnState>;
   }
 };
@@ -43,3 +44,10 @@ type threshMap = {
   pos: number;
   neg: number;
 };
+
+type MissingItem = {
+  orgName: string;
+  value: number;
+};
+
+type Missing = MissingItem[];
