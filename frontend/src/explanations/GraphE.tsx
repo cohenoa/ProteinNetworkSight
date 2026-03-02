@@ -15,8 +15,12 @@ const GraphExplanation: FC = () => {
         The edges are adapted from STRING-db.
       </p>
       <p className="please">
+        If the resulting network has too many nodes, you will be prompted to modify the thresholds
+        so you can get a readable graph(optional).
+      </p>
+      <p className="please">
         in this page you can interact with individual graphs. 
-        if you wish to download your data or all the graphs at once click the "save" button below
+        if you wish to download your data or all the graphs at once click the "save" button below.
       </p>
       <ul>
         <span>Nodes:</span>

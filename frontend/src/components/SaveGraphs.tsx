@@ -16,6 +16,7 @@ import {
 } from "../@types/global";
 import JSZip from "jszip";
 import LoadingBarComponent from "./LoadingBar";
+import TooManyModal from "./tooManyPopUp";
 
 import { MAX_NODES_PER_GRAPH, defaultThresholds } from '../Constants';
 import { getGraphOfVector } from '../common/Helpers';
@@ -170,23 +171,6 @@ const SaveGraphs = forwardRef((props, ref) => {
             blobsRef.current = new Array(state.vectorsHeaders.length).fill(null);
             graphIdxRef.current = 0;
             kickOffBuild();
-            // const vector = state.headers[graphIdxRef.current];
-            // getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, tooManyModal[vector] >= 0, handleData, handleError).then((res) => {
-            //     if (typeof res === "number") {
-            //         setTooManyModal({ ...tooManyModal, [vector]: res });
-            //         setTooManyThresholds({...state.thresholds[vector]});
-            //         return;
-            //     }
-        
-            //     res = res as {graphData: ICustomGraphData | null, missingNodes: Missing};
-        
-            //     if (res.graphData) {
-            //         allGraphData.current[vector] = res.graphData;
-            //         setCurrGraphRef(React.createRef<graphRef>() as graphRef);
-            //         setCurrGraphBuildIdx(graphIdxRef.current);
-            //         setThresholds(state.thresholds[graphIdxRef.current]);
-            //     }
-            // });
         }
     }));
 
@@ -350,18 +334,6 @@ const SaveGraphs = forwardRef((props, ref) => {
                 graphIdxRef.current += 1;
 
                 kickOffBuild();
-
-                // get(state.vectorsHeaders[graphIdxRef.current] + "_graph").then((nextData) => {
-                //     console.log("SET NEXT GRAPH", {
-                //         refidx: graphIdxRef.current,
-                //         stateIdx: currGraphBuildIdx,
-                //         ref: ref,
-                //         time: performance.now()
-                //     })
-                //     setCurrGraphData(nextData.graphData);
-                //     console.log("next graph index: ", graphIdxRef.current);
-                //     setCurrGraphBuildIdx(graphIdxRef.current);
-                // });
                 return;
             }
 
@@ -552,12 +524,16 @@ const SaveGraphs = forwardRef((props, ref) => {
 
     return state.isLoading ? (
         <div className="SaveGraphWrapper">
-            {/* <LoadingComponent /> */}
             <LoadingBarComponent
                 percent={getPercentage()} 
                 label={getLabel()}
             />
-            {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]] > 0 && (
+            {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]] > 0 && (<TooManyModal 
+                clickedVector={state.vectorsHeaders[graphIdxRef.current]}
+                thresholds={thresholds}
+                specifyVector={true}
+            />)}
+            {/* {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]] > 0 && (
                 <div className="tooManyModal">
                     <div className="tooManyModal-content">
                     <p>The graph for {state.vectorsHeaders[graphIdxRef.current]}<b> will contain {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
@@ -604,7 +580,7 @@ const SaveGraphs = forwardRef((props, ref) => {
                     </div>
                     </div>
                 </div>
-                )}
+                )} */}
             {renderInvisibleGraph()}
         </div>
     ) : (

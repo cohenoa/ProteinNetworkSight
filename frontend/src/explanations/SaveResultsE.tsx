@@ -12,9 +12,13 @@ const SaveResultsExplanations: FC = () => {
       <ul>
         <span>Saving data file:</span>
         <li className="must-item">
-          {/* <i className="fa fa-info" /> */}
           <i className="fa">{String.fromCharCode(8594)}</i>
            replace your name with the STRING match in the new data file
+        </li>
+
+        <li className="must-item">
+          <i className="fa fa-info" />
+          replacement STRING names reserves protein/gene modifications(suffix starting with '_')
         </li>
 
         <li className="must-item">

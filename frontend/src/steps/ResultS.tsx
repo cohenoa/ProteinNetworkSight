@@ -14,6 +14,7 @@ import CytoscapejsComponentself from "../components/Cytoscapejs";
 import { update } from 'idb-keyval';
 import { threshMap, Missing } from "../@types/global";
 import { IStepProps } from "../@types/props";
+import TooManyPopUp from "../components/tooManyPopUp";
 
 import { MAX_NODES_PER_GRAPH } from "../Constants";
 import { getGraphOfVector } from "../common/Helpers";
@@ -32,12 +33,8 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     links: [],
   });
 
-  // const missingNodes = useRef<{orgName: string, value: number}[]>([]);
   const [missingNodes, setMissingNodes] = useState<Missing>([]);
   const [openTable, setOpenTable] = useState<boolean>(false);
-  // const [tooManyModal, setTooManyModal] = useState<{[key: string]: number}>(
-  //   Object.fromEntries(state.headers.map(header => [header, 0]))
-  // );
   const [tooManyThresholds, setTooManyThresholds] = useState<threshMap>({
     pos: state.thresholds[clickedVector].pos,
     neg: state.thresholds[clickedVector].neg,
@@ -102,27 +99,6 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     actions.updateIsLoading({ isLoading: false });
   };
 
-  // const isGraphMemValuesValid = (
-  //     graphData: ICustomGraphData, 
-  //     thresholds: threshMap, 
-  //     missingNodes: {orgName: string, value: number}[], 
-  //     namesStringMap: INamesStringMap) => {
-
-
-  //   if (!graphData) return false;
-
-  //   if (thresholds.pos !== state.thresholds[clickedVector].pos || thresholds.neg !== state.thresholds[clickedVector].neg) return false;
-    
-  //   for (const missingNode of missingNodes){
-  //     if (namesStringMap[missingNode.orgName].stringId !== NO_STRING_ID) return false;
-  //   }
-    
-  //   for (const node of graphData.nodes) {
-  //     if (namesStringMap[node.id].stringId === NO_STRING_ID) return false;
-  //   }
-  //   return true;
-  // }
-
   const getGraphData = (vector: string) => {
     console.log("getting graph data");
     setError(false);
@@ -132,7 +108,6 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, state.tooManyModal[vector] < 0, handleJsonGraphData, handleError).then((res) => {
       if (typeof res === "number") {
         actions.updateTooManyModal({ tooManyModal: {...state.tooManyModal, [vector]: res }});
-        // setTooManyModal({ ...tooManyModal, [vector]: res });
         setTooManyThresholds({...state.thresholds[vector]});
         return;
       }
@@ -146,76 +121,6 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
         actions.updateIsLoading({ isLoading: false });
       }
     });
-    // getMany([vectorName + "_graph", "namesStringMap"]).then(([val, namesStringMap]) => {
-    //   console.log("val: ", val);
-    //   if (val && isGraphMemValuesValid(val.graphData, val.thresholds, state.thresholds[clickedVector], val.missingNodes, namesStringMap as INamesStringMap)) {
-    //     console.log("graph data from mem: ", val.graphData);
-    //     console.log("thresholds from mem: ", val.thresholds);
-    //     console.log("missing nodes from mem: ", val.missingNodes);
-    //     setGraphData(val.graphData as ICustomGraphData);
-    //     setMissingNodes(val.missingNodes as Missing);
-    //     actions.updateIsLoading({ isLoading: false });
-    //   }
-    //   else {
-    //     console.log("getting graph data from server");
-    //     getMany([vectorName + "_data", "proteinsNames"]).then(([values_arr, ids_arr]) => {
-    //       const idsList: number[] = [];
-    //       const stringNames: string[] = [];
-    //       const proteins: string[] = [];
-    //       const missing: Missing = [];
-
-    //       let values_map: { [key: string]: number } = {};
-    //       for (let i = 0; i < values_arr.length; i++) {
-    //         values_map[ids_arr[i]] = values_arr[i];
-    //       }
-
-    //       console.log("namesStringMap: ", namesStringMap);
-    //       console.log("values_map: ", values_map);
-
-    //       Object.entries(namesStringMap as INamesStringMap).forEach(([orgName, { stringName, stringId }]) => {
-    //         const val = values_map[orgName];
-    //         if (val > state.thresholds[clickedVector].pos || val < state.thresholds[clickedVector].neg) {
-    //           if (stringId === NO_STRING_ID){
-    //             missing.push({orgName: orgName, value: val} as MissingItem);
-    //           }
-    //           else{
-    //             idsList.push(stringId);
-    //             stringNames.push(stringName);
-    //             proteins.push(orgName);
-    //           }
-    //         }
-    //       });
-
-    //       if (idsList.length > MAX_NODES_PER_GRAPH && tooManyModal[clickedVector] >= 0){
-    //         console.log("too many nodes(" + idsList.length + "), " + tooManyModal[clickedVector]);
-    //         setTooManyThresholds({...state.thresholds[clickedVector]});
-    //         setTooManyModal({...tooManyModal, [clickedVector]: idsList.length});
-    //         return;
-    //       }
-
-    //       setMissingNodes(missing);
-
-    //       set(clickedVector + "_graph", {
-    //         graphData: null,
-    //         thresholds: {...state.thresholds[clickedVector]} as threshMap,
-    //         missingNodes: missing
-    //       });
-
-    //       const body = {
-    //         values_map: values_map,
-    //         thresh_pos: state.thresholds[clickedVector].pos,
-    //         thresh_neg: state.thresholds[clickedVector].neg,
-    //         score_thresh: state.scoreThreshold,
-    //         proteins: proteins,
-    //         ids: idsList,
-    //         string_names: stringNames,
-    //       };
-    //       console.log("body", body);
-
-    //       makePostRequest(JSON.stringify(body), "graphs", handleJsonGraphData, handleError);
-    //     });
-    //   }
-    // });
   };
 
   const handleJsonGraphData = (jsonString: string) => {
@@ -227,11 +132,6 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
         graphData: tempGraphData,
       };
     });
-    // set(clickedVector + "_graph", {
-    //   graphData: tempGraphData,
-    //   thresholds: {...state.thresholds[clickedVector]} as threshMap,
-    //   missingNodes: missingNodes
-    // });
     console.log("graph data: ", tempGraphData);
     actions.updateIsLoading({ isLoading: false });
   };
@@ -273,7 +173,12 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           </div>
         </div>
       )}
-      {state.tooManyModal[clickedVector] > 0 && (
+      {state.tooManyModal[clickedVector] > 0 && (<TooManyPopUp
+        clickedVector={clickedVector}
+        thresholds={thresholds}
+        specifyVector={false}
+      />)}
+      {/* {state.tooManyModal[clickedVector] > 0 && (
         <div className="tooManyModal">
           <div className="tooManyModal-content">
             <p>Your requested graph <b>will contain {state.tooManyModal[clickedVector]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
@@ -309,20 +214,18 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
             </div>
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
               <button type="button" className="btn btn--warning" onClick={() => {
-                // setTooManyModal({...state.tooManyModal, [clickedVector]: -1});
                 actions.updateTooManyModal({ tooManyModal: {...state.tooManyModal, [clickedVector]: -1 }});
                 actions.updateThresholds({thresholds: {...state.thresholds, [clickedVector]: {...tooManyThresholds}}});
               }}>CONTINUE ANYWAY</button>
               <button type="button" className="btn btn--outline" onClick={() => {
                 if (thresholds == state.thresholds[clickedVector]) return;
-                // setTooManyModal({...tooManyModal, [clickedVector]: 0});
                 actions.updateTooManyModal({ tooManyModal: {...state.tooManyModal, [clickedVector]: 0 }});
                 actions.updateThresholds({thresholds: {...state.thresholds, [clickedVector]: {...tooManyThresholds}}});
               }}>UPDATE THRESHOLDS</button>
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
