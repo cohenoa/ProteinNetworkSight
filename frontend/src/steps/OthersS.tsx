@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { ISuggestionsJson } from "../@types/json";
 import { IStepProps } from "../@types/props";
 import { useStateMachine } from "little-state-machine";
-import { updateUuid, updateIsLoading } from "../common/UpdateActions";
+import { updateUuid, updateIsLoading, updateShowError } from "../common/UpdateActions";
 import "../styles/Others.css";
 import ErrorInputText from "../components/ErrorInputText";
 import { getMany } from "idb-keyval";
@@ -16,7 +16,7 @@ type namesFormValues = {
 };
 
 const OthersS: FC<IStepProps> = ({ step, goNextStep }) => {
-  const { state, actions } = useStateMachine({ updateUuid, updateIsLoading });
+  const { state, actions } = useStateMachine({ updateUuid, updateIsLoading, updateShowError });
   const [othersNames, setOthersNames] = useState<{ orgName: string; stringName: string }[]>([]);
 
   const { handleSubmit } = useForm<namesFormValues>({});
@@ -24,6 +24,10 @@ const OthersS: FC<IStepProps> = ({ step, goNextStep }) => {
   useEffect(() => {
     getMany(["suggestionsObj", "namesStringMap"]).then(([suggestionsObj, namesStringMap]) => {
       console.log("no match: ", (suggestionsObj as ISuggestionsJson).no_match);
+      if (!suggestionsObj || !namesStringMap) {
+        actions.updateShowError({ showError: true });
+        return;
+      };
 
       const other_unset = new Set(Object.entries(namesStringMap as INamesStringMap).filter(([orgName, {stringName, stringId}]) => stringId === NO_STRING_ID).map(([orgName]) => orgName));
       const other_set = new Set((suggestionsObj as ISuggestionsJson).no_match.filter((orgName) => (!other_unset.has(orgName))));

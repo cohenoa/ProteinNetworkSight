@@ -18,11 +18,13 @@ import OthersE from "../explanations/OthersE";
 import { clearAction } from "../common/ClearAction";
 import { useStateMachine } from "little-state-machine";
 
+import ErrorScreen from "./ErrorScreen";
+
 
 const MainContent = () => {
+  const { state, actions } = useStateMachine({ clearAction });
   const [step, setStep] = useState<number>(1);
   const saveFormRef = useRef<formRef>(null);
-  const { actions } = useStateMachine({ clearAction })
 
   const goNextStep = () => {
     setStep((prev: number) => prev + 1);
@@ -148,22 +150,27 @@ const MainContent = () => {
     return <ButtonsBar formId={"form" + step} buttons={bar}></ButtonsBar>;
   }
 
-  return (
-    <div className="action-page">
-      <div className="explanation-wrapper">{renderStepExplanation()}</div>
-      <div className="main-wrapper">
-        {step > 4 ? (
-          <div className="step-content full">{renderStepComponent()}</div>
-          ):(
-          <div className="steps">
-            <div className="step-bar"><StepsBar step={step}/></div>  
-            <div className="step-content">{renderStepComponent()}</div>
-          </div>
-        )}
-        <div className="buttons-bar">{renderButtonBar()}</div>
+  if (state.showError && step !== 1){
+    return <ErrorScreen />;
+  }
+  else{
+    return (
+      <div className="action-page">
+        <div className="explanation-wrapper">{renderStepExplanation()}</div>
+        <div className="main-wrapper">
+          {step > 4 ? (
+            <div className="step-content full">{renderStepComponent()}</div>
+            ):(
+            <div className="steps">
+              <div className="step-bar"><StepsBar step={step}/></div>  
+              <div className="step-content">{renderStepComponent()}</div>
+            </div>
+          )}
+          <div className="buttons-bar">{renderButtonBar()}</div>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 export default MainContent;

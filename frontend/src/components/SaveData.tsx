@@ -41,13 +41,9 @@ const SaveData = forwardRef((props, ref) => {
                     orgSTRINGname = "";
                     orgSTRINGId = "";
                 };
-                // if (orgSTRINGId === "0") {
-                //     orgSTRINGname = "";
-                //     orgSTRINGId = "";
-                // };
 
                 if (name in replacementMap && replacementMap[name].accepted) {
-                    orgName = replacementMap[name].string_name;
+                    orgName = replacementMap[name].string_name
                 }
 
                 xlsxContent.push([orgName, orgSTRINGname, orgSTRINGId, ...headersValues[index]]);
@@ -106,10 +102,11 @@ const SaveData = forwardRef((props, ref) => {
         for (const [name, match] of Object.entries(namesStringMap as INamesStringMap)) {
             if (match === undefined || match === null || typeof match !== "object" || !("stringName" in match) || !("stringId" in match)) continue;
 
+            const mod = name.split("_").length > 1 ? "_" + name.split("_")[name.split("_").length - 1] : "";
             if (name in suggestionsObj.alternative_match) {
-                altmap[name] = { string_name: match.stringName, string_id: match.stringId, accepted: false } as replaceNameStatus;
+                altmap[name] = { string_name: match.stringName + mod, string_id: match.stringId, accepted: false } as replaceNameStatus;
             } else if (suggestionsObj.no_match.includes(name) && match.stringId !== NO_STRING_ID) {
-                manmap[name] = {string_name: match.stringName, string_id: match.stringId, accepted: false} as replaceNameStatus;
+                manmap[name] = {string_name: match.stringName + mod, string_id: match.stringId, accepted: false} as replaceNameStatus;
             }
             else if (match.stringId === NO_STRING_ID) {
                 unMatched[name] = {accepted: false} as nameStatus;
@@ -195,7 +192,7 @@ const SaveData = forwardRef((props, ref) => {
             notAcceptedBtnSymbol: isReplace? String.fromCharCode(8594): String.fromCharCode(0x274C),
         }
 
-        
+        console.log(att);
 
         return (
             <div key={index} className="ItemContainer">

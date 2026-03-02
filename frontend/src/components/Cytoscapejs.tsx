@@ -20,6 +20,7 @@ import cise from 'cytoscape-cise';
 // @ts-ignore
 import elk from 'cytoscape-elk';
 import lcsl from '../LCSL_Layout/index';
+import { updateShowError } from "../common/UpdateActions";
 
 cytoscape.use(lcsl);
 cytoscape.use( fcose );
@@ -45,7 +46,7 @@ interface CytoscapeStyle {
  * The props are the graph data and the clikceed vector (for the files)
  */
 const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graphData, clickedVector, alertLoading}, ref) => {
-  const { state } = useStateMachine({});
+  const { state, actions } = useStateMachine({ updateShowError });
   const cyRef = useRef<cytoscape.Core | null>(null);
   const [selectedNode, setSelectedNode] = useState<ICustomNode | null>(null);
   const [openPanel, setOpenPanel] = useState(false);
@@ -123,6 +124,10 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     async (cy: cytoscape.Core) => {
       cyRef.current = cy;
 
+      cy.on("error", (event, err) => {
+        actions.updateShowError({ showError: true });
+      });
+
       cy.on("cxttap", (event) => {
         event.stopImmediatePropagation();
         event.stopPropagation();
@@ -143,6 +148,11 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         // node dropped
         setCurLayout(supportedSettings.layouts.PRESET);
       });
+
+      window.addEventListener("error", (event) => {
+        actions.updateShowError({ showError: true });
+      });
+
       window.addEventListener("click", (event) => {
         setOpenContextMenu(false);
       });
@@ -239,13 +249,23 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
   const layoutRender = () => {
     console.log("applying layout");
-    cyRef.current?.layout(layout).run();
+    try {
+      console.log("layout name", layout.name);
+      console.log("graph data nodes", graphData.nodes);
+      if (graphData.nodes.length === 0 && layout.name === supportedSettings.layouts.CISE) {
+        console.log("no nodes and cise");
+        return
+      };
+      cyRef.current?.layout(layout).run();
+    }
+    catch (error) {
+      console.error("Error applying layout", error);
+      actions.updateShowError({ showError: true });
+    }
   }
 
   useEffect(() => {
     layoutRender();
-    // console.log("applying layout");
-    // cyRef.current?.layout(layout).run();
   }, [layout, curNodeSize, elements]);
 
   // useEffect(() => {
@@ -328,6 +348,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       let layoutName = graphLayout.layout;
 
       setCurLayout(layoutName as SupportedLayout);
+      layoutName = (layoutName === supportedSettings.layouts.CISE && graphData.nodes.length === 0) ? supportedSettings.layouts.CIRCLE : layoutName;
       let newLayout = {
         ...layout,
         name: layoutName,
@@ -458,6 +479,13 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
           alert("there is no saved layout. \nto save a layout open the submenu and click 'save'");
           return;
         }
+      }
+      else if (name === supportedSettings.layouts.CISE && graphData.nodes.length === 0) {
+        console.log("no nodes and cise");
+        setTimeout(() => {
+          alertLoading();
+        }, 300);
+        return;
       }
       else{
         setCurLayout(name);

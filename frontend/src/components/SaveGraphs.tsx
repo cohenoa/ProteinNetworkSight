@@ -302,7 +302,7 @@ const SaveGraphs = forwardRef((props, ref) => {
             case BuildPhase.APPLY_POSITIONS: {
                 console.log("APPLY_POSITIONS", idx);
                 ref.applyLayout(thisGraph.Layout.current?.value, false);
-                phaseRef.current = BuildPhase.WAIT_FOR_LAYOUT;
+                phaseRef.current = BuildPhase.SAVE;
                 return;
             }
 
