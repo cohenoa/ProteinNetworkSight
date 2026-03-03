@@ -192,8 +192,6 @@ const SaveData = forwardRef((props, ref) => {
             notAcceptedBtnSymbol: isReplace? String.fromCharCode(8594): String.fromCharCode(0x274C),
         }
 
-        console.log(att);
-
         return (
             <div key={index} className="ItemContainer">
                 <div className={att.orgNameClass}>{name}</div>

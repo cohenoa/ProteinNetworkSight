@@ -18,7 +18,6 @@ import JSZip from "jszip";
 import LoadingBarComponent from "./LoadingBar";
 import TooManyModal from "./tooManyPopUp";
 
-import { MAX_NODES_PER_GRAPH, defaultThresholds } from '../Constants';
 import { getGraphOfVector } from '../common/Helpers';
 
 type FileEntry = {
@@ -53,13 +52,6 @@ const SaveGraphs = forwardRef((props, ref) => {
     const [graphsStatus, setGraphsStatus] = useState<GraphsStatus>({});
     const [usePresetWhenPossible, setUsePresetWhenPossible] = useState<boolean>(false);
 
-    // const [tooManyModal, setTooManyModal] = useState<{[key: string]: number}>(
-    //     Object.fromEntries(state.vectorsHeaders.map(header => [header, 0]))
-    // );
-    const [tooManyThresholds, setTooManyThresholds] = useState<threshMap>({
-        pos: defaultThresholds.pos,
-        neg: defaultThresholds.neg,
-    });
     const [thresholds, setThresholds] = useState<threshMap>({
         pos: state.thresholds[state.vectorsHeaders[0]].pos,
         neg: state.thresholds[state.vectorsHeaders[0]].neg,
@@ -93,11 +85,18 @@ const SaveGraphs = forwardRef((props, ref) => {
                 const posNodeColorOption = getWindowSelectItemByValue('nodeColors', graphLayout.color.pos);
                 const negNodeColorOption = getWindowSelectItemByValue('nodeColors', graphLayout.color.neg);
 
-                newGraphStatus[header].Layout.current = layoutOption || newGraphStatus[header].Layout.default;
-                newGraphStatus[header].NodeSize.current = nodeSizeOption || newGraphStatus[header].NodeSize.default;
-                newGraphStatus[header].Opacity.current = opacityOption || newGraphStatus[header].Opacity.default;
-                newGraphStatus[header].PosNodeColor.current = posNodeColorOption || newGraphStatus[header].PosNodeColor.default;
-                newGraphStatus[header].NegNodeColor.current = negNodeColorOption || newGraphStatus[header].NegNodeColor.default;
+                newGraphStatus[header].Layout.saved = layoutOption || newGraphStatus[header].Layout.default;
+                newGraphStatus[header].NodeSize.saved = nodeSizeOption || newGraphStatus[header].NodeSize.default;
+                newGraphStatus[header].Opacity.saved = opacityOption || newGraphStatus[header].Opacity.default;
+                newGraphStatus[header].PosNodeColor.saved = posNodeColorOption || newGraphStatus[header].PosNodeColor.default;
+                newGraphStatus[header].NegNodeColor.saved = negNodeColorOption || newGraphStatus[header].NegNodeColor.default;
+
+                newGraphStatus[header].Layout.current = newGraphStatus[header].Layout.saved;
+                newGraphStatus[header].NodeSize.current = newGraphStatus[header].NodeSize.saved;
+                newGraphStatus[header].Opacity.current = newGraphStatus[header].Opacity.saved;
+                newGraphStatus[header].PosNodeColor.current = newGraphStatus[header].PosNodeColor.saved;
+                newGraphStatus[header].NegNodeColor.current = newGraphStatus[header].NegNodeColor.saved;
+
             }
             else{
                 console.log("no layout for " + header + " in memory");
@@ -111,8 +110,8 @@ const SaveGraphs = forwardRef((props, ref) => {
             newGraphStatus[header].fileType.current = newGraphStatus[header].fileType.default;
         }
 
-        console.log(newGraphStatus);
-        console.log(applyAllStatus);
+        console.log("apply all: ", applyAllStatus);
+        console.log("graphs status: ", newGraphStatus);
 
         setGraphsStatus(newGraphStatus);
     }
@@ -124,9 +123,7 @@ const SaveGraphs = forwardRef((props, ref) => {
             if (typeof res === "number") {
                 console.log("too many modal: " + res);
                 console.log(vector);
-                // setTooManyModal({ ...tooManyModal, [vector]: res });
                 actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [vector]: res } });
-                setTooManyThresholds({...state.thresholds[vector]});
                 setThresholds({...state.thresholds[vector]});
                 return;
             }
@@ -384,7 +381,7 @@ const SaveGraphs = forwardRef((props, ref) => {
     const handleIndividualChange = (option: any, key: keyof GraphSettings, header: keyof GraphsStatus) => {
         console.log("inside handleIndividualChange");
         const newGraphStatus = {...graphsStatus}
-
+        console.log("selected: ", option);
         newGraphStatus[header][key].current = option;
         setGraphsStatus(newGraphStatus);
     }
@@ -394,11 +391,15 @@ const SaveGraphs = forwardRef((props, ref) => {
 
         Object.entries(graphsStatus).forEach(([header, item]) => {
             newGraphStatus[header] = copySettings(graphsStatus[header], false);
-            if (usePresetWhenPossible && graphsStatus[header].Layout.options.includes(presetOption)){
-                newGraphStatus[header].Layout.current = presetOption;
+            console.log(graphsStatus[header])
+            console.log(applyAllStatus[key])
 
-                newGraphStatus[header].NodeSize.current = graphsStatus[header].NodeSize.default;
-                newGraphStatus[header].Opacity.current = graphsStatus[header].Opacity.default;
+            if (usePresetWhenPossible && graphsStatus[header].Layout.saved){
+                newGraphStatus[header].Layout.current = graphsStatus[header].Layout.saved;
+                newGraphStatus[header].NodeSize.current = graphsStatus[header].NodeSize.saved;
+                newGraphStatus[header].Opacity.current = graphsStatus[header].Opacity.saved;
+                newGraphStatus[header].PosNodeColor.current = graphsStatus[header].PosNodeColor.saved;
+                newGraphStatus[header].NegNodeColor.current = graphsStatus[header].NegNodeColor.saved;
             }
             else{
                 newGraphStatus[header][key].current = applyAllStatus[key].current;
@@ -533,54 +534,6 @@ const SaveGraphs = forwardRef((props, ref) => {
                 thresholds={thresholds}
                 specifyVector={true}
             />)}
-            {/* {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]] > 0 && (
-                <div className="tooManyModal">
-                    <div className="tooManyModal-content">
-                    <p>The graph for {state.vectorsHeaders[graphIdxRef.current]}<b> will contain {state.tooManyModal[state.vectorsHeaders[graphIdxRef.current]]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
-                    <p>if you wish to proceed anyway, please note that you may experience some performance issues</p>
-                    <br/>
-                    <p>Note: This message will appear until there are at most {MAX_NODES_PER_GRAPH} nodes and it is individual to each graph</p>
-                    <div className="threashold-row">
-                        <label className="thresholdTitle" htmlFor="positiveThreshold">P. Threshold: </label>
-                        <input
-                        id="positiveThreshold"
-                        type="number"
-                        step="0.01"
-                        className="text-input"
-                        min={0}
-                        max={1}
-                        value={tooManyThresholds.pos}
-                        required
-                        onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, pos: Number(e.target.value) })}
-                        />
-                        <label className="thresholdTitle" htmlFor="negativeThreshold">N. Threshold: </label>
-        
-                        <input
-                        id="negativeThreshold"
-                        type="number"
-                        step="0.01"
-                        className="text-input"
-                        min={-1}
-                        max={0}
-                        value={tooManyThresholds.neg}
-                        required
-                        onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, neg: Number(e.target.value) })}
-                        />
-                    </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                        <button type="button" className="btn btn--warning" onClick={() => {
-                        actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [state.vectorsHeaders[graphIdxRef.current]]: -1 } });
-                        actions.updateThresholds({thresholds: {...state.thresholds, [state.vectorsHeaders[graphIdxRef.current]]: {...tooManyThresholds}}});
-                        }}>CONTINUE ANYWAY</button>
-                        <button type="button" className="btn btn--outline" onClick={() => {
-                        if (thresholds == state.thresholds[state.vectorsHeaders[graphIdxRef.current]]) return;
-                        actions.updateTooManyModal({ tooManyModal: { ...state.tooManyModal, [state.vectorsHeaders[graphIdxRef.current]]: 0 } });
-                        actions.updateThresholds({thresholds: {...state.thresholds, [state.vectorsHeaders[graphIdxRef.current]]: {...tooManyThresholds}}});
-                        }}>UPDATE THRESHOLDS</button>
-                    </div>
-                    </div>
-                </div>
-                )} */}
             {renderInvisibleGraph()}
         </div>
     ) : (

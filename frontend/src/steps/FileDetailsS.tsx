@@ -25,7 +25,6 @@ type formValues = {
   thresholds:{};
 };
 
-// const defaultThresholds: threshMap = {pos: 0.08, neg: -0.08};
 
 const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({ updateFileDetails, updateIsLoading ,updateThresholds, updateShowError, updateTooManyModal});

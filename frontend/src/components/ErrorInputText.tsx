@@ -135,7 +135,6 @@ const ErrorInputText: FC<IErrorInputTextProps> = ({ orgName, stringName }) => {
       </div>
     </div>
   );
-  // return <></>
 };
 
 export default ErrorInputText;

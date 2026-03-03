@@ -1,5 +1,4 @@
 import { FC } from "react";
-// import "../styles/FileDetails.css";
 
 const OthersE: FC = () => {
   return (

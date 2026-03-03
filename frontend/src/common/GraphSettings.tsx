@@ -92,6 +92,7 @@ interface SettingItem {
     title: string;
     default: optionItem;
     current: optionItem | null;
+    saved: optionItem | null;
     options: optionItem[];
 }
   
@@ -161,36 +162,42 @@ export const baseDownloadAllGraphSetting: GraphSettings = {
         title: "Layout",
         default: getWindowSelectItem('layouts', 'CIRCLE'),
         current: null,
-        options: Object.values(supportedSettings.layouts).filter(opt => opt !== 'preset').map(opt => ({label: opt, value: opt })),
+        saved: null,
+        options: Object.entries(supportedSettings.layouts).filter(([key, opt]) => opt !== 'preset').map(([key, opt]) => ({label: key, value: opt })),
     },
     NodeSize: {
         title: "Node Size",
         default: getWindowSelectItem('nodeSizes', 'NORMAL'),
         current: null,
+        saved: null,
         options: Object.entries(supportedSettings.nodeSizes).map(([key, opt]) => ({ label: key, value: opt }))
     },
     PosNodeColor: {
         title: "Positive Node Color",
         default: getWindowSelectItem('nodeColors', 'blue'),
         current: null,
+        saved: null,
         options: Object.entries(supportedSettings.nodeColors).map(([key, opt]) => ({ label: key, value: opt }))
     },
     NegNodeColor: {
         title: "Negative Node Color",
         default: getWindowSelectItem('nodeColors', 'red'),
         current: null,
+        saved: null,
         options: Object.entries(supportedSettings.nodeColors).map(([key, opt]) => ({ label: key, value: opt }))
     },
     Opacity: {
         title: "Opacity",
         default: getWindowSelectItem('opacities', 'NORMAL'),
         current: null,
+        saved: null,
         options: Object.entries(supportedSettings.opacities).map(([key, opt]) => ({ label: key, value: opt }))
     },
     fileType: {
         title: "File Type",
         default: getWindowSelectItem('fileTypes', 'PNG'),
         current: null,
-        options: Object.values(supportedSettings.fileTypes).map(opt => ({ label: opt, value: opt })),
+        saved: null,
+        options: Object.entries(supportedSettings.fileTypes).map(([key, opt]) => ({ label: key, value: opt })),
     }
 }

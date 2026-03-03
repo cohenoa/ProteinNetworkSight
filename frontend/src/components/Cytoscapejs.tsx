@@ -90,34 +90,11 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     positions: false,
     stop: async function() {
       console.log("layout stop on cytoscape");
-      setLayoutStop(true);
       alertLoading();
     }
   });
 
-  const setRef = (el: HTMLDivElement | null) => {
-    if (typeof ref === "function") ref(el);
-    else if (ref) ref.current = el;
-
-    if (el) {
-      // graphReadyResolveRef.current?.();
-    }
-  };
-
-  const [layoutStop, setLayoutStop] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  // useEffect(() => {
-  //   if (layoutStop) {
-  //     if (ref) {
-  //       alertLoading();
-  //     }
-  //     else{
-  //       console.log("no ref");
-  //     }
-  //   }
-  // }, [layoutStop]);
 
   //Create a ref to the cy core, and an on click function for the nodes
   const handleCyInit = useCallback(
@@ -183,7 +160,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         },
       })
     );
-    // setElements(elements)
   };
 
   // The function create the links data for the elements array
@@ -199,7 +175,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         },
       })
     );
-    // setElements(elements)
   };
 
   const fetchData = useCallback(async () => {
@@ -217,17 +192,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       }      
       else {
         console.log("Setting the elements for the first time");
-
-        // if (clickedVector in clickedVectors){
-        //   delete  val.clicked_vectors[clickedVector];
-        //   await set(state.fileName,val);
-        //   console.log(val.clicked_vectors)
-        // }
-        // const newElements: any[] = [];
-        // createNodes(newElements, graphData.nodes);
-        // createLinks(newElements, graphData.links);
-        
-        // setElements(newElements);
       }
     } catch (error) {
       console.error("Error loading graph data", error);
@@ -235,16 +199,11 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     finally {
       // Set loading to false when the operation is complete
       setIsLoading(false);
-      setDataLoaded(true);
     }
   }, []);
   
   useEffect(() => {
     fetchData();
-    // resetElements().then(() => {
-    //   console.log("fetching data after reset");
-    //   fetchData();
-    // });
   }, [ graphData.nodes, graphData.links, state.fileName, fetchData]);
 
   const layoutRender = () => {
@@ -267,18 +226,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   useEffect(() => {
     layoutRender();
   }, [layout, curNodeSize, elements]);
-
-  // useEffect(() => {
-  //   if (layoutStop && dataLoaded) {
-  //     setTimeout(() => {
-
-  //     }, 2000);
-      
-  //   }
-  //   else{
-  //     console.log(layoutStop, dataLoaded);
-  //   }
-  // }, [layoutStop, dataLoaded])
 
   
   // The function handle a click on the close button on the panel
@@ -305,10 +252,10 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   const saveGraph = async () => {
     try {
 
-      const nodePositions = curLayout === supportedSettings.layouts.PRESET ? cyRef.current?.nodes().map((node) => {
+      const nodePositions = cyRef.current?.nodes().map((node) => {
         let positionObj = node.position();
         return {[node.id()]: {x: positionObj.x, y: positionObj.y}};
-      }) : [];
+      });
 
       if (nodePositions === undefined) {
         console.log("nodePositions is undefined");
@@ -351,18 +298,17 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       layoutName = (layoutName === supportedSettings.layouts.CISE && graphData.nodes.length === 0) ? supportedSettings.layouts.CIRCLE : layoutName;
       let newLayout = {
         ...layout,
-        name: layoutName,
+        name: supportedSettings.layouts.PRESET,
         animate: true,
         fit: true,
       };
 
-      if (layoutName === supportedSettings.layouts.PRESET) {
-        newLayout.positions = graphLayout.positions.reduce((positionsObj: any, node: any) => {
-          const nodeId = Object.keys(node)[0];
-          positionsObj[nodeId] = node[nodeId];
-          return positionsObj;
-        }, {});
-      }
+      newLayout.positions = graphLayout.positions.reduce((positionsObj: any, node: any) => {
+        const nodeId = Object.keys(node)[0];
+        positionsObj[nodeId] = node[nodeId];
+        return positionsObj;
+      }, {});
+
       setLayout(newLayout);
       return true;
     }
@@ -426,7 +372,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     applyNodeColor,
     getGraphBlob,
     layoutRender,
-    // downloadGraph
   }));
 
   // right click menu
@@ -473,7 +418,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
   const applyLayout = async (name: SupportedLayout, animate: boolean) => {
     if (cyRef.current) {
-      // setLayoutStop(false);
       if (name === supportedSettings.layouts.PRESET) {
         if (!await applySavedGraph()) {
           alert("there is no saved layout. \nto save a layout open the submenu and click 'save'");
@@ -521,7 +465,6 @@ const applyNodeColor = (nodeType: 'pos' | 'neg', color: SupportedNodeColor) => {
 }
 const applyNodeSize = (size: SupportedNodeSize) => {
   console.log("setting node size");
-  // setLayoutStop(false);
   cyRef.current?.nodes().forEach(function(node){
     node.data('size', (parseInt(node.data('size')) / curNodeSize) * size);
   });
@@ -529,7 +472,6 @@ const applyNodeSize = (size: SupportedNodeSize) => {
 }
 const applyOpacity = (op: SupportedOpacity) => {
   console.log("setting opacity");
-  // setLayoutStop(false);
   const newStyle = [myStyle[0], {...(myStyle[1])}];
   newStyle[1].style.opacity = op;
   setMyStyle(newStyle);

@@ -46,7 +46,6 @@ const ContextMenu: FC<ContextMenuProps> = ({ position, depth, items }) => {
         rect.height,
         items.at(index.valueOf())?.submenu?.length || 0
       );
-      // return {x: rect.right, y: position.y + rect.height * Number(index)};
     }
     else{ // submenu already opened, using previous XPos to avoid taking submenu pos(render order issue)
       return getOverflowPosition(
@@ -54,7 +53,6 @@ const ContextMenu: FC<ContextMenuProps> = ({ position, depth, items }) => {
         rect.height,
         items.at(index.valueOf())?.submenu?.length || 0
       );
-      // return {x: subMenuXPos, y: position.y + rect.height * Number(index)};
     }
   }
 

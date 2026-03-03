@@ -60,7 +60,6 @@ const Panel: FC<IPanelProps> = ({ node, organism, onClickClose }) => {
       console.log(entryUrl);
       window.open(entryUrl, "_blank");
     } catch (err) {
-      // console.error("Error fetching organism info:", err);
       alert("Error fetching Uniprot link: " + err);
     }
     setIsLoadingUniprot(false);
