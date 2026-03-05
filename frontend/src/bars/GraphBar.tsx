@@ -59,7 +59,8 @@ const GraphBar: FC<IGraphBarProps> = ({
           })
           }
           {CollapseSection({
-            label: "\"At Risk\" Nodes",
+            // label: "Putative Identifiers",
+            label: "Nodes Worth Reviewing",
             children: alternativeNames.map(([orgName, stringName]) => (
               <div key={orgName}>
                 {`${orgName}(${stringName})`}
