@@ -36,7 +36,7 @@ const Tutorial: FC = () => {
         <h1 className="t-h1">ProteinNetworkSight Tutorial</h1>
         <div>
           <p className="t-p">
-            <a href="/Tutorial.pdf" download="tutorial_pdf.pdf">Tutorial PDF</a>
+            <a href="/proteinnetworksight_jce_ac_tutorial.pdf" download="tutorial.pdf">Tutorial PDF</a>
           </p>
           <h2 className="t-h2">Summary</h2>
           <p className="t-p">Our tool works with two existing databases:</p>
