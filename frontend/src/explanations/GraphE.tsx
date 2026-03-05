@@ -95,21 +95,18 @@ const GraphExplanation: FC = () => {
         </li>
         <li className="must-item">
           <FontAwesomeIcon className="icon" icon={faDownload} fixedWidth={true} style={{ fontSize: "20px" }}/>
-          download the graph in a varaiaty of formats - SVG, PNG or JSON
+          download the graph in a varaiaty of formats from the right click menu
         </li>
         <span>Table:</span>
         <li className="must-item">
           <i className="fa fa-sort-amount-desc" style={{ color: "black" }} />
-          Table can help you see the actual data represented by the graph
+          Table can help you see the actual data represented by the graph and the current mapping to STRING names
+        </li>
+        <li className="must-item">
+          <i className="fa fa-info" style={{ color: "black" }} />
+          You can sort the table by any column by clicking on the column header
         </li>
       </ul>
-    
-      {/* <p className="please">
-        Table includes several calculated parameters (you can sort by any column
-        by hovering over the column name) Here goes a list of all column names
-        in the output table with a short description:
-      </p> */}
-      
     </div>
   );
 };

@@ -15,6 +15,10 @@ const OthersE: FC = () => {
         </li>
         <li className="must-item">
           <i className="fa fa-info" />
+          After entering a name, click anywhere on the page to validate the STRING name
+        </li>
+        <li className="must-item">
+          <i className="fa fa-info" />
           Note: the user should confirm the accuracy of the names
         </li>
         <li className="must-item">

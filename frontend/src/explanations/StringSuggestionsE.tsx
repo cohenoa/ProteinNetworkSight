@@ -24,12 +24,7 @@ const StringSuggestionsExplanation: FC = () => {
 
         <li className="must-item">
           <i className="fa fa-toggle-right" />
-          If no name matches, select “other”
-        </li>
-
-        <li className="must-item">
-          <i className="fa fa-toggle-right" />
-          In the next page you will be able to insert manually the correct names
+          If no name matches, select “other” and you will be able to manually insert a name in the next step
         </li>
       </ul>
     </div>

@@ -21,6 +21,18 @@ const FileDetailsExplanation: FC = () => {
         </li>
         <li className="must-item">
           <i className="fa fa-check-circle-o" />
+          Set Positive and Negative thresholds to filter nodes with low scores
+        </li>
+        <li className="must-item">
+          <i className="fa fa-check-circle-o" />
+          Click Manual Thresholds to apply a thresholds manually for each vector
+        </li>
+        <li className="must-item">
+          <i className="fa fa-check-circle-o" />
+          Note that the Pos&Neg threholds are selected based on where the thresholds was last changed
+        </li>
+        <li className="must-item">
+          <i className="fa fa-check-circle-o" />
           To build networks and adjust drugs choose “Homo Sapiens”. To build
           just networks, select any other organism.
         </li>

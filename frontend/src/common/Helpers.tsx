@@ -50,6 +50,7 @@ export async function getGraphOfVector(
         const stringNames: string[] = [];
         const proteins: string[] = [];
         const missing: Missing = [];
+        const Alternatives: [string, string][] = [];
 
         let values_map: { [key: string]: number } = {};
         for (let i = 0; i < values_arr.length; i++) {
@@ -60,12 +61,12 @@ export async function getGraphOfVector(
             const val = values_map[orgName];
             if (val > thresholds.pos || val < thresholds.neg) {
                 if (stringId === NO_STRING_ID){
-                missing.push({orgName: orgName, value: val} as MissingItem);
+                    missing.push({orgName: orgName, value: val} as MissingItem);
                 }
                 else{
-                idsList.push(stringId);
-                stringNames.push(stringName);
-                proteins.push(orgName);
+                    idsList.push(stringId);
+                    stringNames.push(stringName);
+                    proteins.push(orgName);
                 }
             }
         });

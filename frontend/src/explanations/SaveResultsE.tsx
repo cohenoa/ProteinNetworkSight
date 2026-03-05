@@ -39,24 +39,30 @@ const SaveResultsExplanations: FC = () => {
 
       <ul>
         <span>Saving Graphs:</span>
+
         <li className="must-item">
           <i className="fa fa-info" />
-          apply your desired layout, node size, edge opcaity, file type
+          the list is initialized with your saved settings(or default when there is no saved layout).
         </li>
 
         <li className="must-item">
           <i className="fa fa-info" />
-          use the top menu to apply changes to the whole list
+          apply your desired layout, node size, node color, edge opcaity, file type for each graph individually
         </li>
 
         <li className="must-item">
           <i className="fa fa-info" />
-          the list is initialized with your preset settings(or default).
+          use the top menu to apply changes to the whole list. note that this will override whatever setting is currently applied
         </li>
 
         <li className="must-item">
           <i className="fa fa-info" />
-          use the save button to download all the graphs
+          mark the "Use saved when possible" checkbox to avoid overriding saved layouts when using the apply all menu
+        </li>
+
+        <li className="must-item">
+          <i className="fa fa-info" />
+          use the save button in the bottom of the page to download all the graphs at once. note that this might take a while
         </li>
 
       </ul>
