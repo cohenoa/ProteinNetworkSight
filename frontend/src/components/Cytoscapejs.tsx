@@ -108,6 +108,10 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         actions.updateShowError({ showError: true });
       });
 
+      document.addEventListener('contextmenu', event => {
+        event.preventDefault();
+      });
+
       cy.on("cxttap", (event) => {
         event.stopImmediatePropagation();
         event.stopPropagation();
