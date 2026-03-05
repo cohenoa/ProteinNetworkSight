@@ -10,6 +10,7 @@ const GraphBar: FC<IGraphBarProps> = ({
   nodesNum,
   linksNum,
   missingNodes,
+  alternativeNames,
   thresholds,
   setThresholds,
 }) => {
@@ -53,6 +54,15 @@ const GraphBar: FC<IGraphBarProps> = ({
             children: missingNodes.map((node) => (
               <div key={node.orgName + node.value}>
                 {`${node.orgName}(${node.value.toFixed(3)})`}
+              </div>
+            )),
+          })
+          }
+          {CollapseSection({
+            label: "\"At Risk\" Nodes",
+            children: alternativeNames.map(([orgName, stringName]) => (
+              <div key={orgName}>
+                {`${orgName}(${stringName})`}
               </div>
             )),
           })
@@ -105,7 +115,7 @@ function CollapseSection({ label, children }: CollapseSectionProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", marginLeft: "2px" }}>
       {/* Header */}
       <button
         onClick={() => setOpen(!open)}

@@ -28,7 +28,7 @@ const FileDetailsExplanation: FC = () => {
           Click Manual Thresholds to apply a thresholds manually for each vector
         </li>
         <li className="must-item">
-          <i className="fa fa-check-circle-o" />
+          <i className="fa info" />
           Note that the Pos&Neg threholds are selected based on where the thresholds was last changed
         </li>
         <li className="must-item">

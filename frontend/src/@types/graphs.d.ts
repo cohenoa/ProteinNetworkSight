@@ -40,3 +40,9 @@ export interface IObjectNode {
   nodeCanvasObject: CanvasCustomRenderFn<NodeObject> | undefined;
   nodeThreeObjectExtend: NodeAccessor$1<boolean> | undefined;
 }
+
+export interface GraphDataMem {
+  graphData: ICustomGraphData | null, 
+  missingNodes: Missing, 
+  alternatives: [string, string][]
+}

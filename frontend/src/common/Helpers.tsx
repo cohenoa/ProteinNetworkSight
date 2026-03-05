@@ -1,4 +1,4 @@
-import { ICustomGraphData } from "../@types/graphs";
+import { GraphDataMem, ICustomGraphData } from "../@types/graphs";
 import { makePostRequest } from "../common/PostRequest";
 import { set, getMany } from 'idb-keyval';
 import { INamesStringMap, threshMap, Missing, MissingItem } from "../@types/global";
@@ -34,14 +34,14 @@ export async function getGraphOfVector(
     scoreThreshold: number, 
     ignoreMissing: boolean, 
     handleData: (jsonString: string) => void, 
-    handleError?: (error: string) => void): Promise<{graphData: ICustomGraphData | null, missingNodes: Missing} | number> {
+    handleError?: (error: string) => void): Promise<GraphDataMem | number> {
         
-        const [val, namesStringMap] = await getMany([header + "_graph", "namesStringMap"]);
+        const [val, namesStringMap, suggestionsObj] = await getMany([header + "_graph", "namesStringMap", "suggestionsObj"]);
         
         console.log("val: ", val);
         if (val && isGraphMemValuesValid(val.graphData, val.thresholds, thresholds, val.missingNodes, namesStringMap as INamesStringMap)) {
             console.log("loading graph data from memory");
-            return {graphData: val.graphData as ICustomGraphData, missingNodes: val.missingNodes as Missing};
+            return {graphData: val.graphData as ICustomGraphData, missingNodes: val.missingNodes as Missing, alternatives: val.alternatives as [string, string][]};
         }
         
         console.log("getting graph data from server");
@@ -50,7 +50,7 @@ export async function getGraphOfVector(
         const stringNames: string[] = [];
         const proteins: string[] = [];
         const missing: Missing = [];
-        const Alternatives: [string, string][] = [];
+        const alternatives: [string, string][] = [];
 
         let values_map: { [key: string]: number } = {};
         for (let i = 0; i < values_arr.length; i++) {
@@ -64,6 +64,10 @@ export async function getGraphOfVector(
                     missing.push({orgName: orgName, value: val} as MissingItem);
                 }
                 else{
+                    const suggestions: {[key: string]: number} = suggestionsObj.alternative_match[orgName];
+                    if (suggestions && Object.keys(suggestions).includes(stringName)){
+                        alternatives.push([orgName, stringName]);
+                    }
                     idsList.push(stringId);
                     stringNames.push(stringName);
                     proteins.push(orgName);
@@ -79,7 +83,8 @@ export async function getGraphOfVector(
         set(header + "_graph", {
             graphData: null,
             thresholds: {...thresholds} as threshMap,
-            missingNodes: missing
+            missingNodes: missing,
+            alternatives: alternatives
         });
 
         const body = {
@@ -94,5 +99,10 @@ export async function getGraphOfVector(
         console.log("body", body);
 
         makePostRequest(JSON.stringify(body), "graphs", handleData, handleError);
-        return {graphData: null, missingNodes: missing};
+        return {graphData: null, missingNodes: missing, alternatives: alternatives};
+}
+
+export const getMod = (name: string) => {
+    const parts = name.split("_");
+    return parts.length > 1 ? "_" + parts[parts.length - 1] : "";
 }

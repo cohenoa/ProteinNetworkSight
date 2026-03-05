@@ -84,6 +84,7 @@ export interface IGraphBarProps {
   nodesNum: number;
   linksNum: number;
   missingNodes: Missing;
+  alternativeNames: [string, string][];
   thresholds: threshMap;
   setThresholds: React.Dispatch<React.SetStateAction<threshMap>>;
 }

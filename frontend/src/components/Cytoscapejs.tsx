@@ -12,7 +12,7 @@ import { get, set, keys } from 'idb-keyval';
 import { useStateMachine } from "little-state-machine";
 import { MenuItem } from "../@types/props";
 import { supportedSettings, SupportedFileType, SupportedLayout, SupportedNodeSize, SupportedOpacity, SupportedNodeColor } from "../common/GraphSettings";
-import { faDiagramProject, faDownload, faPencil, faFloppyDisk, faSpinner, faBrush, faPlus , faMinus, faUpRightAndDownLeftFromCenter, faDownLeftAndUpRightToCenter, faExpand } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faDiagramProject, faDownload, faPencil, faFloppyDisk, faSpinner, faBrush, faPlus , faMinus, faUpRightAndDownLeftFromCenter, faDownLeftAndUpRightToCenter, faExpand } from '@fortawesome/free-solid-svg-icons';
 import svg from "cytoscape-svg";
 import fcose from 'cytoscape-fcose';
 // @ts-ignore
@@ -21,6 +21,8 @@ import cise from 'cytoscape-cise';
 import elk from 'cytoscape-elk';
 import lcsl from '../LCSL_Layout/index';
 import { updateShowError } from "../common/UpdateActions";
+import { INamesStringMap } from "../@types/global";
+import { getMod } from "../common/Helpers";
 
 cytoscape.use( lcsl );
 cytoscape.use( fcose );
@@ -56,6 +58,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   const [curNodeSize, setCurNodeSize] = useState<SupportedNodeSize>(supportedSettings.nodeSizes.NORMAL);
   const [curNodeColor, setCurNodeColor] = useState<{pos: SupportedNodeColor, neg: SupportedNodeColor}>({pos: supportedSettings.nodeColors.blue, neg: supportedSettings.nodeColors.red});
   const [curLayout, setCurLayout] = useState<SupportedLayout>(supportedSettings.layouts.CIRCLE);
+  const [showingSTRINGNames, setShowingSTRINGNames] = useState<boolean>(false);
 
   const [myStyle, setMyStyle] = useState<CytoscapeStyle[]>([
     {
@@ -148,11 +151,12 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   );
 
   const createNodes = (elements: Array<any>, nodes: ICustomNode[]) => {
+    console.log("nodes: ", nodes);
     nodes.forEach((node) => 
       elements.push({
         data: {
           id: node.id,
-          label: node.id === undefined || typeof node.id === "number"? node.id: node.id,
+          label: node.id,
           color: node.color,
           size: Math.abs(node.size === undefined ? 0 : node.size) * 110,  // set the size of the node to be bigger so it will be shown in the graph.
           positive: node.size === undefined || node.size > 0 ? true : false,
@@ -183,6 +187,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
       const newElements: any[] = [];
       createNodes(newElements, graphData.nodes);
+      console.log(newElements);
       createLinks(newElements, graphData.links);
       
       setElements(newElements);
@@ -412,9 +417,22 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       icon: faDownload,
       submenu: Object.values(supportedSettings.fileTypes).map((option) => ({ label: option, icon: faDownload, onClick: () => downloadGraph(option)}))
     },
+    {label: showingSTRINGNames ? 'show original names' : 'show STRING names', icon: faEye, onClick: () => replaceNames()},
     {label: 'save', icon: faFloppyDisk, onClick: () => {saveGraph()}},
     {label: 'load', icon: faSpinner, onClick: () => {applyLayout(supportedSettings.layouts.PRESET, true)}},
   ];
+
+  const replaceNames = async () => {
+    if (cyRef.current){
+      const nameStringMap: INamesStringMap | undefined = await get("namesStringMap");
+      if (!nameStringMap) return;
+      cyRef.current.nodes().forEach(function(node){
+        const newName = showingSTRINGNames ? node.id() : nameStringMap[node.id()].stringName + getMod(node.id());
+        node.data('label', newName);
+      })
+      setShowingSTRINGNames(!showingSTRINGNames);
+    }
+  }
 
   const applyLayout = async (name: SupportedLayout, animate: boolean) => {
     if (cyRef.current) {

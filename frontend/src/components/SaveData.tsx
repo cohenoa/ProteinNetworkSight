@@ -8,7 +8,8 @@ import { IButtonConfig, nameStatus, replaceNameStatus } from "../@types/props";
 import { write, utils } from "xlsx";
 import { INamesStringMap } from "../@types/global";
 
-import { NO_STRING_ID, NO_STRING_NAME } from "../Constants";
+import { getMod } from "../common/Helpers";
+import { NO_STRING_ID } from "../Constants";
 
 const SaveData = forwardRef((props, ref) => {
 
@@ -102,7 +103,7 @@ const SaveData = forwardRef((props, ref) => {
         for (const [name, match] of Object.entries(namesStringMap as INamesStringMap)) {
             if (match === undefined || match === null || typeof match !== "object" || !("stringName" in match) || !("stringId" in match)) continue;
 
-            const mod = name.split("_").length > 1 ? "_" + name.split("_")[name.split("_").length - 1] : "";
+            const mod = getMod(name);
             if (name in suggestionsObj.alternative_match) {
                 altmap[name] = { string_name: match.stringName + mod, string_id: match.stringId, accepted: false } as replaceNameStatus;
             } else if (suggestionsObj.no_match.includes(name) && match.stringId !== NO_STRING_ID) {

@@ -3,7 +3,7 @@ import { useStateMachine } from "little-state-machine";
 import { updateIsLoading, updateShowError, updateThresholds, updateTooManyModal } from "../common/UpdateActions";
 import { get, setMany, update } from 'idb-keyval';
 import WindowedSelect from "react-windowed-select";
-import { ICustomAllGraphData, ICustomGraphData } from "../@types/graphs";
+import { GraphDataMem, ICustomAllGraphData, ICustomGraphData } from "../@types/graphs";
 import CytoscapejsComponentself from "../components/Cytoscapejs";
 import "../styles/SaveGraphs.css";
 import "../styles/TooManyModal.css";
@@ -128,7 +128,7 @@ const SaveGraphs = forwardRef((props, ref) => {
                 return;
             }
     
-            res = res as {graphData: ICustomGraphData | null, missingNodes: Missing};
+            res = res as GraphDataMem;
     
             if (res.graphData) {
                 console.log("graph data: ", res.graphData);

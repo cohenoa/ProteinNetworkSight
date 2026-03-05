@@ -44,6 +44,10 @@ const GraphExplanation: FC = () => {
           <i className="fa fa-circle-thin" style={{ fontSize: "25px" }} />
           Node size proportional to input value.
         </li>
+        <li className="must-item">
+          <i className="fa fa-info" style={{ fontSize: "25px" }} />
+          Click a node to view its details, and access related resources(UniProt, drugBank)
+        </li>
         <span>Edges:</span>
         <li className="must-item">
           <i className="fa fa-question-circle-o" style={{ color: "black" }} />
@@ -99,11 +103,11 @@ const GraphExplanation: FC = () => {
         </li>
         <span>Table:</span>
         <li className="must-item">
-          <i className="fa fa-sort-amount-desc" style={{ color: "black" }} />
+          <i className="fa fa-info" style={{ color: "black" }} />
           Table can help you see the actual data represented by the graph and the current mapping to STRING names
         </li>
         <li className="must-item">
-          <i className="fa fa-info" style={{ color: "black" }} />
+          <i className="fa fa-sort-amount-desc" style={{ color: "black" }} />
           You can sort the table by any column by clicking on the column header
         </li>
       </ul>

@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { ICustomGraphData } from "../@types/graphs";
+import { GraphDataMem, ICustomGraphData } from "../@types/graphs";
 import VectorsButtons from "../bars/VectorsButtons";
 import LoadingComponent from "../components/Loading";
 import GraphBar from "../bars/GraphBar";
@@ -32,11 +32,8 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   });
 
   const [missingNodes, setMissingNodes] = useState<Missing>([]);
+  const [alternativeNames, setAlternativeNames] = useState<[string, string][]>([]);
   const [openTable, setOpenTable] = useState<boolean>(false);
-  const [tooManyThresholds, setTooManyThresholds] = useState<threshMap>({
-    pos: state.thresholds[clickedVector].pos,
-    neg: state.thresholds[clickedVector].neg,
-  });
   const [thresholds, setThresholds] = useState<threshMap>({
     pos: state.thresholds[clickedVector].pos,
     neg: state.thresholds[clickedVector].neg,
@@ -106,13 +103,12 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, state.tooManyModal[vector] < 0, handleJsonGraphData, handleError).then((res) => {
       if (typeof res === "number") {
         actions.updateTooManyModal({ tooManyModal: {...state.tooManyModal, [vector]: res }});
-        setTooManyThresholds({...state.thresholds[vector]});
         return;
       }
-
-      res = res as {graphData: ICustomGraphData | null, missingNodes: Missing};
+      res = res as GraphDataMem;
 
       setMissingNodes(res.missingNodes);
+      setAlternativeNames(res.alternatives);
 
       if (res.graphData) {
         setGraphData(res.graphData);
@@ -154,6 +150,7 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
               nodesNum={graphData.nodes.length}
               linksNum={graphData.links.length}
               missingNodes={missingNodes}
+              alternativeNames={alternativeNames}
               thresholds={thresholds}
               setThresholds={setThresholds}
             />
