@@ -11,9 +11,9 @@ import manual_thresholds from "../assets/tutorial images/manual_thresholds.png";
 import download_data from "../assets/tutorial images/download_data.png";
 import save_results_menu from "../assets/tutorial images/save_results_menu.png";
 
-import Menu_Basic_Layouts from '../assets/tutorial images/menu_Basic_Layouts.png';
+import Menu_Geometric_Layout from "../assets/tutorial images/Menu_Geometric_Layouts.png";
 import Menu_Cluster_Layout from '../assets/tutorial images/Menu_Cluster_Layout.png';
-import Menu_LCSL from '../assets/tutorial images/Menu_LCSL.png';
+import Menu_LCSL_Random from "../assets/tutorial images/Menu_LCSL_Random.png";
 import Menu_Download from '../assets/tutorial images/Menu_Download.png';
 import Menu_Edge_Opacity from '../assets/tutorial images/Menu_Edge_Opacity.png';
 import Menu_Node_Color from '../assets/tutorial images/Menu_Node_Color.png';
@@ -21,7 +21,6 @@ import Menu_Node_Size from '../assets/tutorial images/Menu_Node_Size.png';
 import Menu_save_load from '../assets/tutorial images/Menu_save_load.png';
 import Menu_SaveGraphs from '../assets/tutorial images/Menu_SaveGraphs.png';
 
-import { openLink } from "../common/GeneralCommon";
 import { downloadExampleFile } from "../common/ExampleFileAction";
 
 import { MAX_LINES_PER_FILE } from "../Constants";
@@ -29,41 +28,31 @@ import { MAX_LINES_PER_FILE } from "../Constants";
 const Tutorial: FC = () => {
   const stringdbLink = "https://string-db.org/";
   const drugsDatabaseLink = "https://data.tp53.org.uk/cancerdrugs.php";
+  const cytoscapeLayoutsLink = "https://blog.js.cytoscape.org/2020/05/11/layouts/#choice-of-layout";
+  const uniProtLink = "https://www.uniprot.org/";
   return (
     <div className="page-container">
       <div className="tutorial-container">
         <h1 className="t-h1">ProteinNetworkSight Tutorial</h1>
-        {/* <p className="t-p note">
-          Note: In addition to the documentation a video tutorial will be
-          uploaded soon.
-        </p> */}
-        {/* Summary DIV */}
         <div>
+          <p className="t-p">
+            <a href="/Tutorial.pdf" download="tutorial_pdf.pdf">Tutorial PDF</a>
+          </p>
           <h2 className="t-h2">Summary</h2>
           <p className="t-p">Our tool works with two existing databases:</p>
           <ol type="a">
             <li className="t-li">
-              <button
-                className="btn--here"
-                onClick={() => {
-                  openLink(stringdbLink);
-                }}
-              >
-                String-db
-              </button>
+              <a href={stringdbLink} target="_blank" rel="noreferrer">STRING-db</a> 
               , an online tool and a database of known and predicted
               protein-protein interactions
             </li>
             <li className="t-li">
-              <button
-                className="btn--here"
-                onClick={() => {
-                  openLink(drugsDatabaseLink);
-                }}
-              >
-                Cancer Drugs Database
-              </button>
+              <a href={drugsDatabaseLink} target="_blank" rel="noreferrer">Cancer Drugs Database</a>
               , a database that provides a listing of licensed cancer drugs
+            </li>
+            <li className="t-li">
+              <a href={uniProtLink} target="_blank" rel="noreferrer">UniProt</a> 
+              , a protein sequence and functional information resource.
             </li>
           </ol>
           <p className="t-p">
@@ -85,19 +74,6 @@ const Tutorial: FC = () => {
             weights from information-theoretic analyses, or simple fold changes. The first line is the header, 
             specifying column names. Note that the names of the numeric columns should start with the same prefix.
           </p>
-          {/* <p className="t-p">
-            For the user to begin, they must upload an Excel / CSV / TSV file on a single sheet (or a TXT that represents an Excel file),
-            where each row represents a protein or gene and each column represents a feature. 
-            It is recommended that the file contains up to 2000 rows.
-            such that each row represents a protein/gene and the columns
-            are features to be analysed. The file should contain a column of
-            protein/gene names as well as additional column(s) of numeric
-            values. Numeric values can represent gene/protein scores (as
-            obtained from for example principal component analysis (PCA) or
-            information-theoretic) or simple fold changes. The first line is the
-            header, specifying column names. Note that the names of the numeric
-            columns should start with the same prefix.
-          </p> */}
           <p className="t-p">
             <button className="btn--here" onClick={downloadExampleFile}>
               Here
@@ -109,11 +85,6 @@ const Tutorial: FC = () => {
             the information-theoretic analysis presented in Vasudevan et al. 
             However, this format is flexible: the "G" columns can be replaced by any other scores, 
             coefficients, or fold changes, depending on the specific method the user employs to find co-expression patterns.
-            {/* &nbsp;you can find an example file (fetched from Vasudevan et al.,
-            npj Precision Oncology, 2021, Supplementary Data 1). For example,
-            here are 10 rows of the example file, where the gene column is named
-            “UID” the header of the numerical columns start with “G”, followed
-            by some index. */}
           </p>
           <img className="t-img" src={example_rows} alt="example_rows" />
         </div>
@@ -163,14 +134,7 @@ const Tutorial: FC = () => {
           <h2 className="t-h2">Adjusting protein/gene names </h2>
           <p className="t-p">
             Our tool connects to&nbsp;
-            <button
-              className="btn--here"
-              onClick={() => {
-                openLink(stringdbLink);
-              }}
-            >
-              String-db
-            </button>
+            <a href={stringdbLink} target="_blank" rel="noreferrer">STRING-db</a>
             &nbsp;
             in order to create and visualise protein networks. Thus,
             protein/gene names specified in the input file should match the
@@ -226,7 +190,7 @@ const Tutorial: FC = () => {
             We offer a diverse range of layout options designed to visually organize nodes, enhancing your ability to extract meaningful insights from the graph.<br/>
             Presented below are three fundamental options that are broadly applicable to any graph.<br/>
           </p>
-          <img className="t-img" src={Menu_Basic_Layouts} alt="right_click_menu"/>
+          <img className="t-img" src={Menu_Geometric_Layout} alt="right_click_menu"/>
           <p className="t-p">
             Additionally, advanced layout options utilizing various clustering algorithms are available to provide an alternative visualization of the graph's structure.<br/>
             We recommend exploring each of these options, as they can uncover valuable insights and reveal unique properties of the graph.<br/>
@@ -234,17 +198,21 @@ const Tutorial: FC = () => {
           <img className="t-img" src={Menu_Cluster_Layout} alt="cluster_graph_layout"/>
 
           <p className="t-p">
-            If you would like to see more information about the layouts, you can find them at <a href="https://blog.js.cytoscape.org/2020/05/11/layouts/#choice-of-layout">cytoscape.js layouts</a>.
+            If you would like to see more information about the layouts, you can find them at <a href={cytoscapeLayoutsLink} target="_blank" rel="noreferrer">cytoscape.js layouts</a>.
             <br/>
             If you would like for us to add a new Layout, please contact us!<br/>
           </p>
 
           <p className="t-p">
-            Additionally, we provide a novel, hand-crafted cluster finding algorithm - named LCSL(Layered Cluster Spiral Layout) - 
-            which utilizes the link weights to identify clusters and organize each cluster in a spiral pattern, 
+            Additionally, for users who prefer a more complex approach, we provide a novel, hand-crafted cluster finding algorithm - named LCSL(Layered Cluster Spiral Layout) - 
+            which utilizes the link weights(as opposed to link counts like previous layouts) to identify clusters and organize each cluster in a spiral pattern, 
             taking into account the weights of each node's links. This algorithm is designed to facilitate the discovery and prioritization of proteins and their respective drugs for optimal therapeutic effect.
           </p>
-          <img className="t-img" src={Menu_LCSL} alt="LCSL"/>
+          <p className="t-p">
+            On the other end, for users who prefer a simpler apprach, we also provide a Random layout, which randomly places the nodes on the graph.
+            You can click it multiple times to see different random results.<br/>
+          </p>
+          <img className="t-img" src={Menu_LCSL_Random} alt="LCSL"/>
 
           <p className="t-p">
             To help with visualizing the graph, we provide a few additional options focused on aesthetics.<br/>
@@ -312,14 +280,7 @@ const Tutorial: FC = () => {
             </li>
             <li className="t-li">
               Drug - a known anticancer drug as obtained from the&nbsp;
-              <button
-                className="btn--here"
-                onClick={() => {
-                  openLink(drugsDatabaseLink);
-                }}
-              >
-                Cancer Drugs Database
-              </button>
+              <a href={drugsDatabaseLink} target="_blank" rel="noreferrer">Cancer Drugs Database</a>
             </li>
           </ul>
           <img className="t-img" src={table} alt="table"/>

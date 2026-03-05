@@ -101,3 +101,7 @@
 .browser-support td {
   background-color: #fff;
 }
+
+a {
+  color: var(--text-blue);
+}

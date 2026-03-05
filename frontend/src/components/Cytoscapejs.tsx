@@ -22,7 +22,7 @@ import elk from 'cytoscape-elk';
 import lcsl from '../LCSL_Layout/index';
 import { updateShowError } from "../common/UpdateActions";
 
-cytoscape.use(lcsl);
+cytoscape.use( lcsl );
 cytoscape.use( fcose );
 cytoscape.use( cise );
 cytoscape.use( elk );

@@ -38,6 +38,7 @@ export const supportedSettings = {
     layouts: {
         CIRCLE: 'circle',
         PRESET: 'preset',
+        CONCENTRIC: 'concentric',
         GRID: 'grid',
         LCSL: 'lcsl',
         FCOSE: 'fcose',
