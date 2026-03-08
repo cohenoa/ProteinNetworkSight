@@ -44,16 +44,8 @@ with open_conn("DB/database.example.ini") as conn:
             drugName = drugItem["name"]
             drugBankID = drugItem["drugBankID"]
             buf.write("{}\t{}\t{}\n".format(key, drugName, drugBankID))
-            if drugBankID is None:
-                print("drugBankID is None for {} {}".format(key, drugName))
-            elif drugBankID == "":
-                print("drugBankID is empty string for {} {}".format(key, drugName))
-            elif drugBankID == "Not found in DrugBank":
-                print("Not found in DrugBank for {} {}".format(key, drugName))
 
-    # buf.write("\\.")
     buf.seek(0)
     insert_rows_copy_from_factory(conn, "items.drugs")(buf)
     
     conn.commit()
-    # conn.close()

@@ -206,7 +206,7 @@ const Tutorial: FC = () => {
           <p className="t-p">
             Additionally, for users who prefer a more complex approach, we provide a novel, hand-crafted cluster finding algorithm - named LCSL(Layered Cluster Spiral Layout) - 
             which utilizes the link weights(as opposed to link counts like previous layouts) to identify clusters and organize each cluster in a spiral pattern, 
-            taking into account the weights of each node's links. This algorithm is designed to facilitate the discovery and prioritization of proteins and their respective drugs for optimal therapeutic effect.
+            taking into account the weights of each node's links at every step. This algorithm is designed to facilitate the discovery and prioritization of key proteins and their respective drugs for optimal therapeutic effect.
           </p>
           <p className="t-p">
             On the other end, for users who prefer a simpler apprach, we also provide a Random layout, which randomly places the nodes on the graph.
