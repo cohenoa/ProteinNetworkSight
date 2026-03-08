@@ -1,5 +1,5 @@
 
-from DB.updateDB_tools import *
+from DB.scripts.updateDB_tools import *
 
 version = get_version()
 print(version)

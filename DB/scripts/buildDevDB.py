@@ -1,4 +1,4 @@
-from DB.updateDB_tools import *
+from DB.scripts.updateDB_tools import *
 import csv
 
 configFileName = 'DB/database.prod.ini'

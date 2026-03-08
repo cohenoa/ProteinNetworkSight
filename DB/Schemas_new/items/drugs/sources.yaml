@@ -1,0 +1,23 @@
+main:
+  name: George Pantziarka TP53 Trust (Created by Anticancer Fund)
+  url: https://data.tp53.org.uk/cancerdrugsdb.txt
+  wanted_columns:
+    - "Targets"
+    - "Product"
+    - "DrugBank ID"
+  reversed: true
+  seperator: ";"
+  drugBankIdExceptions: ["Not found in DrugBank"]
+
+extra:
+  - name: George Pantziarka TP53 Trust (Created by Anticancer Fund)
+    url: https://data.tp53.org.uk/cancerdrugsdb.txt
+    wanted_columns:
+      - "Targets"
+      - "Product"
+      - "DrugBank ID"
+    reversed: true
+    seperator: ";"
+    drugBankIdExceptions: ["Not found in DrugBank"]
+
+

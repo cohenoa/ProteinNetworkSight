@@ -4,12 +4,15 @@ from tqdm import tqdm
 import io
 import psycopg2
 from psycopg2.extensions import connection, cursor
+from psycopg2 import OperationalError, InterfaceError
 from psycopg2 import sql
 from configparser import ConfigParser
 import os
-from requests.adapters import HTTPAdapter, Retry
 import zlib
 import time
+import pandas as pd
+from collections import defaultdict
+from typing import Literal
 
 section_identifiers = ['links', 'species', 'proteins', 'proteins_aliases']
 
@@ -231,9 +234,45 @@ def open_conn(config_file_name) -> connection:
             db[param[0]] = param[1]
     else:
         raise Exception('Section {0} not found in the {1} file'.format(section, config_file_name))
-    conn = psycopg2.connect(**db)
+    
+    try:
+        conn = psycopg2.connect(**db)
+    except Exception as e:
+        print(f"Database error: {e}")
+        # Attempt to reconnect if the connection was lost
+        try:
+            conn = psycopg2.connect(**db)
+        except Exception as e:
+            print(f"Reconnection failed: {e}")
+            return None
     conn.autocommit = True
     return conn
+
+def reset_table(cur: cursor, schema_name, table_name):
+    # Truncate data
+    cur.execute(sql.SQL("TRUNCATE {}.{} CASCADE;").format(
+        sql.Identifier(schema_name), sql.Identifier(table_name)
+    ))
+
+    # Drop indexes
+    cur.execute("""
+        SELECT i.indexname
+        FROM pg_indexes i
+        LEFT JOIN pg_constraint c
+        ON c.conname = i.indexname
+        WHERE i.schemaname = %s
+        AND i.tablename = %s
+        AND (c.contype IS NULL OR c.contype NOT IN ('p','u'));
+    """, (schema_name, table_name))
+
+    for (idx,) in cur.fetchall():
+        print(f"    Dropping index {idx}...")
+        cur.execute(sql.SQL("DROP INDEX IF EXISTS {};").format(sql.Identifier(idx)))
+
+def create_table(cur: cursor, schema_name, config_path):
+    cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name};")
+    with open(config_path, "r") as f:
+        cur.execute(f.read())
 
 def reset_tables(conn: connection, tables):
     """
@@ -271,43 +310,102 @@ def reset_tables(conn: connection, tables):
 
             if exists:
                 print(f"[{full_table_name}] exists → truncating and dropping indexes...")
-                cur.execute(sql.SQL("TRUNCATE {}.{} CASCADE;").format(
-                    sql.Identifier(schema), sql.Identifier(table)
-                ))
-
-                # Drop indexes
-                cur.execute("""
-                    SELECT i.indexname
-                    FROM pg_indexes i
-                    LEFT JOIN pg_constraint c
-                    ON c.conname = i.indexname
-                    WHERE i.schemaname = %s
-                    AND i.tablename = %s
-                    AND (c.contype IS NULL OR c.contype NOT IN ('p','u'));
-                """, (schema, table))
-                for (idx,) in cur.fetchall():
-                    print(f"    Dropping index {idx}...")
-                    cur.execute(sql.SQL("DROP INDEX IF EXISTS {};").format(sql.Identifier(idx)))
+                reset_table(cur, schema, table)
             else:
                 print(f"[{full_table_name}] does not exist → creating from {config_path}")
-                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema};")
-                with open(config_path, "r") as f:
-                    cur.execute(f.read())
+                create_table(cur, schema, config_path)
+
+# def reset_tables(conn: connection, tables):
+#     """
+#     Loop over tables and apply the update process:
+#     1. Truncate & drop indexes if table exists, otherwise run config.sql
+#     2. Insert data via user-provided function
+#     3. Apply indexes from indexes.sql
+
+#     Parameters
+#     ----------
+#     conn : psycopg2 connection
+#         An open PostgreSQL connection.
+#     tables : dict
+#         Dictionary of { "schema.table": None, ... }
+#     insert_func : callable
+#         Function with signature insert_func(conn, full_table_name).
+#         Should perform the insert step for the table.
+#     """
+#     DB_DIR = "DB/Schemas_new"
+#     for full_table_name in tables.keys():
+#         schema, table = full_table_name.split(".")
+#         table_dir = os.path.join(DB_DIR, schema, table)
+#         config_path = os.path.join(table_dir, "config.sql")
+
+#         with conn.cursor() as cur:
+#             # --- Step 1: Reset / Init ---
+#             cur.execute("""
+#                 SELECT EXISTS (
+#                     SELECT FROM information_schema.tables 
+#                     WHERE table_schema = %s
+#                     AND table_name = %s
+#                 );
+#             """, (schema, table))
+#             exists = cur.fetchone()[0]
+
+#             if exists:
+#                 print(f"[{full_table_name}] exists → truncating and dropping indexes...")
+#                 cur.execute(sql.SQL("TRUNCATE {}.{} CASCADE;").format(
+#                     sql.Identifier(schema), sql.Identifier(table)
+#                 ))
+
+#                 # Drop indexes
+#                 cur.execute("""
+#                     SELECT i.indexname
+#                     FROM pg_indexes i
+#                     LEFT JOIN pg_constraint c
+#                     ON c.conname = i.indexname
+#                     WHERE i.schemaname = %s
+#                     AND i.tablename = %s
+#                     AND (c.contype IS NULL OR c.contype NOT IN ('p','u'));
+#                 """, (schema, table))
+#                 for (idx,) in cur.fetchall():
+#                     print(f"    Dropping index {idx}...")
+#                     cur.execute(sql.SQL("DROP INDEX IF EXISTS {};").format(sql.Identifier(idx)))
+#             else:
+#                 print(f"[{full_table_name}] does not exist → creating from {config_path}")
+#                 cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema};")
+#                 with open(config_path, "r") as f:
+#                     cur.execute(f.read())
+
+def apply_index(cur: cursor, index_path):
+    with open(index_path, "r") as f:
+        index_sql = f.read()
+    cur.execute(index_sql)
 
 def apply_indexes(conn, tables, DB_DIR="DB/Schemas_new"):
-    for full_table_name in tables.keys():
-        schema, table = full_table_name.split(".")
-        table_dir = os.path.join(DB_DIR, schema, table)
-        index_path = os.path.join(table_dir, "indexes.sql")
+    with conn.cursor() as cur:
+        for full_table_name in tables.keys():
+            schema, table = full_table_name.split(".")
+            table_dir = os.path.join(DB_DIR, schema, table)
+            index_path = os.path.join(table_dir, "indexes.sql")
 
-        if os.path.exists(index_path):
-            print(f"[{full_table_name}] applying indexes from {index_path}...")
-            with open(index_path, "r") as f:
-                index_sql = f.read()
-            with conn.cursor() as cur:
-                cur.execute(index_sql)
-        else:
-            print(f"[{full_table_name}] no index file found.")
+            if os.path.exists(index_path):
+                print(f"[{full_table_name}] applying indexes from {index_path}...")
+                apply_index(cur, index_path)
+            else:
+                print(f"[{full_table_name}] no index file found.")
+
+# def apply_indexes(conn, tables, DB_DIR="DB/Schemas_new"):
+#     for full_table_name in tables.keys():
+#         schema, table = full_table_name.split(".")
+#         table_dir = os.path.join(DB_DIR, schema, table)
+#         index_path = os.path.join(table_dir, "indexes.sql")
+
+#         if os.path.exists(index_path):
+#             print(f"[{full_table_name}] applying indexes from {index_path}...")
+#             with open(index_path, "r") as f:
+#                 index_sql = f.read()
+#             with conn.cursor() as cur:
+#                 cur.execute(index_sql)
+#         else:
+#             print(f"[{full_table_name}] no index file found.")
 
 
 def count_rows_in_file(path):
@@ -341,6 +439,44 @@ def sample_file(url, n_lines = 1000):
                 with open("sample_network.txt", "w") as f:
                     f.write(buffer.getvalue())
                 break
+
+def get_reverse_drugs_map(med_df : pd.DataFrame, columns: tuple, seperator, drugBankIdFormat: Literal["plane", "tag"], drugBankIdExceptions):
+    target_product_map = defaultdict(list)
+    targetCol, productCol, infoLinkCol = columns
+    for _, row in med_df.iterrows():
+
+        if pd.isna(row[targetCol]): # Drugs with no targets are not relevant
+            continue
+        
+        drugBankId = get_drugbank_id(row[infoLinkCol], format=drugBankIdFormat)
+        if (drugBankId in drugBankIdExceptions):
+            drugBankId = None
+            
+        target_list = row[targetCol].split(seperator)
+
+        for target in target_list:
+            target_product_map[str(target).strip()].append({
+                "name": str(row[productCol]).strip(),
+                "drugBankID": drugBankId
+            })
+    return target_product_map
+
+def get_drugbank_id(value: str, format: Literal["plane", "tag"]):
+    if (value == "Not found in DrugBank"):
+        print("watch this")
+    if (format == "plane"):
+        if (value.find("Not found in DrugBank") != -1) or (value == ""):
+            return None
+        return value
+    if (format == "tag"):
+        try:
+            return value.split(">")[1].split("<")[0]
+        except:
+            return None
+        
+# def update_table_batch(conn, table_name, rows_generator, batch_size):
+    
+    
 
     
             
