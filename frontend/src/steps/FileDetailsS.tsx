@@ -268,6 +268,7 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
                 required
                 {...register("positiveThreshold", {
                   onChange: (e) => {
+                    setThreholdsNotInUse(false);
                     actions.updateThresholds({thresholds: {}});
                   },
                 })}
@@ -292,6 +293,7 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
                 required
                 {...register("negativeThreshold", {
                   onChange: (e) => {
+                    setThreholdsNotInUse(false);
                     actions.updateThresholds({thresholds: {}});
                   },
                 })}
