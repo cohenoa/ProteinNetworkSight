@@ -1,5 +1,6 @@
 import { ColumnState} from "ag-grid-community";
 import { GlobalState } from "little-state-machine";
+import { defaultScoreThrehold } from "../Constants";
 
 export const emptyState: GlobalState = {
   fileName: "",
@@ -7,7 +8,7 @@ export const emptyState: GlobalState = {
   vectorsPrefix: "G",
   headers: [],
   organism: { label: "Homo sapiens", value: "9606" },
-  scoreThreshold: 0.4,
+  scoreThreshold: defaultScoreThrehold,
   isSetSuggestions: false,
   vectorsHeaders: [],
   vectorsLastLayout: [],

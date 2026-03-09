@@ -2,23 +2,26 @@ import { useStateMachine } from "little-state-machine";
 import { FC, FormEvent, useEffect, useState } from "react";
 import { read, utils } from "xlsx";
 import { IStepProps } from "../@types/props";
-import { updateFileUpload, updateFileName, updateIsLoading, updatestringNames, updateNamesMap } from "../common/UpdateActions";
+import { updateFileUpload, updateFileName, updateIsLoading, updatestringNames, updateNamesMap, updateThresholds, updateFileDetails, updateSavedFileUpload } from "../common/UpdateActions";
 import { clearAction } from "../common/ClearAction";
 import "../styles/FileUpload.css";
 import { getExampleFile } from "../common/ExampleFileAction";
 import { set, setMany, clear } from "idb-keyval";
-import { INamesStringMap } from "../@types/global";
+import { INamesStringMap, threshMap } from "../@types/global";
 
-import { MAX_LINES_PER_FILE, NO_STRING_ID, NO_STRING_NAME } from "../Constants";
+import { defaultScoreThrehold, defaultThresholds, MAX_LINES_PER_FILE, NO_STRING_ID, NO_STRING_NAME, SAVED_NAMES_COLUMN_TITLE, SAVED_NEG_THRESHOLD_TITLE, SAVED_NUMERIC_COLUMN_PREFIX_TITLE, SAVED_ORGANISM_TITLE, SAVED_POS_THRESHOLD_TITLE, SAVED_STRING_ID_TITLE, SAVED_STRING_NAME_TITLE, SAVED_STRING_SCORE_THRESHOLD_TITLE } from "../Constants";
+import { OptionType } from "../@types/json";
 
 const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({
     updateFileName,
     updateFileUpload,
+    updateSavedFileUpload,
     clearAction,
     updateIsLoading,
     updatestringNames,
     updateNamesMap,
+    updateThresholds
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -90,20 +93,22 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     const reader = new FileReader();
     reader.onerror = () => setHasError("Error reading file.");
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       if (!e.target?.result) {
         setHasError("Failed to load file.");
         return;
       }
 
       if (fileType === "xlsx") {
-        processXLSXFile(e.target.result as ArrayBuffer);
-      } else if (fileType === "csv") {
-        processCSVFile(e.target.result as string);
+        await processXLSXFile(e.target.result as ArrayBuffer);
+      } 
+      else if (fileType === "csv") {
+        await processCSVFile(e.target.result as string);
       }
       else if (fileType === "tsv"){
-        processTSVFile(e.target.result as string);
+        await processTSVFile(e.target.result as string);
       }
+      goNextStep();
     };
 
     if (fileType === "xlsx") {
@@ -113,26 +118,35 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     }
   };
 
-  const processXLSXFile = (data: ArrayBuffer) => {
+  const processXLSXFile = async (data: ArrayBuffer) => {
     const workbook = read(new Uint8Array(data), { type: "array" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const fileData = utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
-    processParsedData(fileData);
+    const threholdsSheetName = workbook.SheetNames[1];
+    const thresholdsWorksheet = workbook.Sheets[threholdsSheetName];
+    const thresholdsFileData = utils.sheet_to_json(thresholdsWorksheet, { header: 1 }) as any[][];
+
+    const metaDataSheetName = workbook.SheetNames[2];
+    const metaDataWorksheet = workbook.Sheets[metaDataSheetName];
+    const metaDataFileData = utils.sheet_to_json(metaDataWorksheet, { header: 1 }) as any[][];
+
+    await processParsedData(fileData);
+    processMetaDataData(metaDataFileData, thresholdsFileData);
   };
 
-  const processCSVFile = (data: string) => {
+  const processCSVFile = async (data: string) => {
     const fileData = data.split("\n").map(row => row.split(","));
-    processParsedData(fileData);
+    await processParsedData(fileData);
   };
 
-  const processTSVFile = (data: string) => {
+  const processTSVFile = async (data: string) => {
     const fileData = data.split("\n").map(row => row.split("\t"));
-    processParsedData(fileData);
+    await processParsedData(fileData);
   };
 
-  const processParsedData = (fileData: any[][]) => {
+  const processParsedData = async (fileData: any[][]) => {
     const { filtered_data, num_invalid, num_duplicates} = filterInvalidAndDuplicatData(fileData);
     fileData = filtered_data;
 
@@ -162,12 +176,63 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       return;
     }
 
-    if (headers.includes("STRING Name")) {
-      processStringNameFile(fileData, headers);
+    if (headers.includes(SAVED_STRING_NAME_TITLE) && headers.includes(SAVED_STRING_ID_TITLE)) {
+      await processSavedFile(fileData, headers);
     } else {
-      uploadFileData(fileData, headers);
+      await uploadFileData(fileData, headers);
     }
   };
+
+  const processMetaDataData = (metaDataFileData: any[][], thresholdsFileData: any[][]) => {
+    let scoreThrehold: number = state.scoreThreshold;
+    let organism: OptionType = state.organism;
+    let numericalColumnPrefix: string = state.vectorsPrefix;
+    let namesColumn: string = state.idHeader;
+    metaDataFileData.forEach(row => {
+      if (row[0] == SAVED_STRING_SCORE_THRESHOLD_TITLE){
+        scoreThrehold = Number(row[1]);
+      }
+      if (row[0] == SAVED_ORGANISM_TITLE){
+        organism = {label: row[1], value: Number(row[2])};
+      }
+      if (row[0] == SAVED_NUMERIC_COLUMN_PREFIX_TITLE){
+        numericalColumnPrefix = row[1];
+      }
+      if (row[0] == SAVED_NAMES_COLUMN_TITLE){
+        namesColumn = row[1];
+      }
+    })    
+    
+    const headerRow = thresholdsFileData[0];
+    headerRow.shift();
+    console.log(headerRow);
+    const thresholds: { [key: string]: threshMap } = Object.fromEntries(
+      headerRow.map((header: any) => [header, {...defaultThresholds}])
+    );
+    console.log(thresholds);
+    thresholdsFileData.forEach(row => {
+      if (row[0] === SAVED_POS_THRESHOLD_TITLE){
+        for (let i = 0; i < headerRow.length; i++){
+          console.log(thresholds[headerRow[i]]);
+          console.log(headerRow[i]);
+          thresholds[headerRow[i]].pos = Number(row[i + 1]);
+        }
+      }
+      if (row[0] === SAVED_NEG_THRESHOLD_TITLE){
+        for (let i = 0; i < headerRow.length; i++){
+          thresholds[headerRow[i]].neg = Number(row[i + 1]);
+        }
+      }
+    });
+
+    console.log("thresholds: ", thresholds);
+    console.log("scoreThrehold: ", scoreThrehold);
+    console.log("organism: ", organism);
+    console.log("numericalColumnPrefix: ", numericalColumnPrefix);
+    console.log("namesColumn: ", namesColumn);
+    console.log("vectorsHeaders: ", headerRow);
+    actions.updateSavedFileUpload({scoreThreshold: scoreThrehold, organism: organism, vectorsHeaders: headerRow, thresholds: thresholds, idHeader: namesColumn, vectorsPrefix: numericalColumnPrefix});
+  }
 
   function filterInvalidAndDuplicatData(data: any[][]): { filtered_data: any[][], num_invalid: number, num_duplicates: number } {
     const seen = new Set<string>();
@@ -181,6 +246,7 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
         return false;
       };
       if (seen.has(key)) {
+        console.log("Duplicate key: " + key);
         num_duplicates++;
         return false;
       }
@@ -194,7 +260,7 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     return { filtered_data, num_invalid, num_duplicates };
   }
 
-  const processStringNameFile = (fileData: any[][], headers: string[]) => {
+  const processSavedFile = async (fileData: any[][], headers: string[]) => {
     console.log("loading saved file");
     const namesStringMap: INamesStringMap = {};
     
@@ -208,24 +274,21 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     });
 
     headers = headers.filter(h => h !== "STRING id" && h !== "STRING Name");
-    setMany([
+    console.log("headers: ", headers);
+    actions.updateFileUpload({headers: headers});
+    await setMany([
       ["json", fileData],
       ["namesStringMap", namesStringMap]
-    ]).then(() => {
-      actions.updateFileUpload({headers: headers});
-      goNextStep();
-    })
+    ])
   };
 
-  const uploadFileData = (fileData: any[][], headers: string[]) => {
+  const uploadFileData = async (fileData: any[][], headers: string[]) => {
     if (!fileData.length) {
       setHasError("File is empty or invalid.");
       return;
     }
     actions.updateFileUpload({headers: headers});
-    set("json", fileData).then(() => {
-      goNextStep();
-    });
+    await set("json", fileData);
   };
 
   return (

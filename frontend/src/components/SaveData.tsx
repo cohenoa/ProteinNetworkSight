@@ -9,7 +9,7 @@ import { write, utils } from "xlsx";
 import { INamesStringMap } from "../@types/global";
 
 import { getMod } from "../common/Helpers";
-import { NO_STRING_ID } from "../Constants";
+import { NO_STRING_ID, SAVED_NAMES_COLUMN_TITLE, SAVED_NUMERIC_COLUMN_PREFIX_TITLE, SAVED_ORGANISM_TITLE, SAVED_STRING_ID_TITLE, SAVED_STRING_NAME_TITLE, SAVED_STRING_SCORE_THRESHOLD_TITLE } from "../Constants";
 
 const SaveData = forwardRef((props, ref) => {
 
@@ -25,7 +25,7 @@ const SaveData = forwardRef((props, ref) => {
         const headersValues = columnsToRows(await getMany(state.headers.map((header) => header + "_data")));
         const [namesStringMap, proteinsNames] = await getMany(["namesStringMap", "proteinsNames"]);
 
-        let content = [['UID', 'STRING Name', 'STRING id'].concat(state.vectorsHeaders)];
+        let content = [[state.idHeader, SAVED_STRING_NAME_TITLE, SAVED_STRING_ID_TITLE].concat(state.vectorsHeaders)];
 
         (proteinsNames as string[]).forEach((name, index) => {
             if (name in unMatchedMap && unMatchedMap[name].accepted) return;
@@ -62,13 +62,13 @@ const SaveData = forwardRef((props, ref) => {
     }
 
     function getMetaDataContent(){
-        let content = [["STRING Score Threshold", String(state.scoreThreshold)]];
+        let content = [[SAVED_STRING_SCORE_THRESHOLD_TITLE, String(state.scoreThreshold)]];
 
-        content.push(["Organism", String(state.organism.label), String(state.organism.value)]);
+        content.push([SAVED_ORGANISM_TITLE, String(state.organism.label), String(state.organism.value)]);
 
-        content.push(["Numerical Column Prefix", String(state.vectorsPrefix)]);
+        content.push([SAVED_NUMERIC_COLUMN_PREFIX_TITLE, String(state.vectorsPrefix)]);
 
-        content.push(["Names Column", String(state.idHeader)]);
+        content.push([SAVED_NAMES_COLUMN_TITLE, String(state.idHeader)]);
 
         return content;
     }
@@ -77,37 +77,10 @@ const SaveData = forwardRef((props, ref) => {
         getFormData: async () => {
             actions.updateIsLoading({ isLoading: true });
 
-            // const headersValues = columnsToRows(await getMany(state.headers.map((header) => header + "_data")));
-            // const [namesStringMap, proteinsNames] = await getMany(["namesStringMap", "proteinsNames"]);
-
-            // let mainContent = [['UID', 'STRING Name', 'STRING id'].concat(state.vectorsHeaders)];
-            // let metaDataContent = [['SETTING\\HEADER'].concat(state.vectorsHeaders)];
-
-            // (proteinsNames as string[]).forEach((name, index) => {
-            //     if (name in unMatchedMap && unMatchedMap[name].accepted) return;
-            //     const match = namesStringMap[name];
-
-            //     let orgName = name;
-            //     let orgSTRINGname = match.stringName;
-            //     let orgSTRINGId = String(match.stringId);
-
-            //     if (orgSTRINGId === String(NO_STRING_ID)) {
-            //         orgSTRINGname = "";
-            //         orgSTRINGId = "";
-            //     };
-
-            //     if (name in replacementMap && replacementMap[name].accepted) {
-            //         orgName = replacementMap[name].string_name
-            //     }
-
-            //     mainContent.push([orgName, orgSTRINGname, orgSTRINGId, ...headersValues[index]]);
-            // })
-
             const mainContent = await getMainContent();
             const thresholdsContent = getThresholdsContent();
             const metaDataContent = getMetaDataContent();
 
-      
             const workbook = utils.book_new();
             const worksheet = utils.aoa_to_sheet(mainContent);
             utils.book_append_sheet(workbook, worksheet, "Sheet1");

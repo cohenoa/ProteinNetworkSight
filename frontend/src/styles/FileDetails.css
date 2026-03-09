@@ -21,11 +21,18 @@
     outline: 1px solid var( --primary);
 
 }
+.thresholds-container{
+    display: flex;
+    flex-direction: column;
+    height: 20%;
+    width: 100%;
+}
 .row-fields{
     display: flex;
     flex-direction: row;
-    height: 20%;
-    width: 100%;
+    /* height: 20%;
+    width: 100%; */
+    /* background-color: blue; */
 }
 .row-fields>.field{
  height: 100%;

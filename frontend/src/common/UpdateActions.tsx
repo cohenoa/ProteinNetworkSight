@@ -52,17 +52,30 @@ export function updateFileUpload(
   };
 }
 
+export function updateSavedFileUpload(
+  state: GlobalState,
+  payload: { 
+    scoreThreshold: number;
+    organism: OptionType;
+    vectorsHeaders: string[]
+    thresholds: {[x: string]: threshMap;}
+    idHeader: string
+    vectorsPrefix: string
+  }
+): GlobalState {
+    return {
+    ...state,
+    ...payload,
+  };
+}
+
 export function updateFileDetails(
   state: GlobalState,
   payload: {
-    // proteinsNames: string[];
     scoreThreshold: number;
-    // positiveThreshold: number;
-    // negativeThreshold: number;
     organism: OptionType;
     vectorsHeaders: string[];
     thresholds: {[x: string]: threshMap;}
-    // vectorsValues: IVectorsValues;
   }
 ): GlobalState {
   console.log(payload);

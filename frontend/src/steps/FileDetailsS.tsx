@@ -29,6 +29,7 @@ type formValues = {
 const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({ updateFileDetails, updateIsLoading ,updateThresholds, updateShowError, updateTooManyModal});
   const [selectedOption, setSelectedOption] = useState<OptionType>({...state.organism});
+  const [threholdsNotInUse, setThreholdsNotInUse] = useState<boolean>(Object.keys(state.thresholds).length !== 0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -50,6 +51,7 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
     actions.updateThresholds({thresholds: resultObject});
     console.log("resultObject: ", resultObject);
     closeModal();
+    setThreholdsNotInUse(true);
     return resultObject
   }
 
@@ -69,7 +71,7 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
 
       const idIndex = state.headers.indexOf(data.idHeader);
       console.log(data.idHeader);
-      console.log(state.headers)
+      console.log(state.headers);
 
       // Normalize protein names
       const proteins = normalizeProteins(rawProteins, idIndex);
@@ -175,6 +177,8 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
 
     return result;
   }
+
+  console.log(state);
   
   return (
     <form
@@ -194,7 +198,10 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
             defaultValue={state.idHeader}
             required
             {...register("idHeader", {
-              validate: { header: (v) => state.headers.includes(v) },
+              validate: { header: (v) => {
+                console.log(state.headers);
+                return state.headers.includes(v)
+              } },
             })}
           />
 
@@ -214,8 +221,9 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
             required
             {...register("vectorsPrefix", {
               validate: {
-                header: (v) =>
-                  headers.some((res: string) => res.includes(v)),
+                header: (v) =>{
+                  return state.headers.some((res: string) => res.startsWith(v))
+                },
               },
             })}
           />
@@ -244,62 +252,67 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
           />
         </div>
 
-        <div className="row-fields">
-          <div className="field">
-            <label htmlFor="positiveThreshold">Positive Threshold:</label>
+        <div className="thresholds-container">
+          <div className="row-fields">
+            <div className="field">
+              <label htmlFor="positiveThreshold">Positive Threshold:</label>
 
-            <input
-              id="positiveThreshold"
-              type="number"
-              step="any"
-              className="text-input"
-              min={0}
-              max={1}
-              defaultValue={defaultThresholds.pos}
-              required
-              {...register("positiveThreshold", {
-                onChange: (e) => {
-                  actions.updateThresholds({thresholds: {}});
-                },
-              })}
-          />
-
-          {errors.positiveThreshold && errors.positiveThreshold.type === "json" && (
-            <p className="detail-error">Minimum one positive node</p>
-          )}
-          </div>
-
-          <div className="field">
-            <label htmlFor="negativeThreshold">Negative Threshold:</label>
-
-            <input
-              id="negativeThreshold"
-              type="number"
-              step="any"
-              className="text-input"
-              min={-1}
-              max={0}
-              defaultValue={defaultThresholds.neg}
-              required
-              {...register("negativeThreshold", {
-                onChange: (e) => {
-                  actions.updateThresholds({thresholds: {}});
-                },
-              })}
+              <input
+                id="positiveThreshold"
+                type="number"
+                step="any"
+                className="text-input"
+                min={0}
+                max={1}
+                defaultValue={defaultThresholds.pos}
+                required
+                {...register("positiveThreshold", {
+                  onChange: (e) => {
+                    actions.updateThresholds({thresholds: {}});
+                  },
+                })}
             />
-    
-            {errors.negativeThreshold && errors.negativeThreshold.type === "json" && (
-              <p className="detail-error">Minimum one negative node</p>
+
+            {errors.positiveThreshold && errors.positiveThreshold.type === "json" && (
+              <p className="detail-error">Minimum one positive node</p>
             )}
-          </div>
+            </div>
 
-          {/* button for setting manual thresholds */}
+            <div className="field">
+              <label htmlFor="negativeThreshold">Negative Threshold:</label>
 
-          
-          <div className="button-container">
-            {/* <button className="btn btn--primary btn--medium" onClick={() => openModal()}>Manual Thresholds</button> */}
-            <button type="button" className="btn btn--primary btn--medium" onClick={() => openModal()}>Manual Thresholds</button>
+              <input
+                id="negativeThreshold"
+                type="number"
+                step="any"
+                className="text-input"
+                min={-1}
+                max={0}
+                defaultValue={defaultThresholds.neg}
+                required
+                {...register("negativeThreshold", {
+                  onChange: (e) => {
+                    actions.updateThresholds({thresholds: {}});
+                  },
+                })}
+              />
+      
+              {errors.negativeThreshold && errors.negativeThreshold.type === "json" && (
+                <p className="detail-error">Minimum one negative node</p>
+              )}
+            </div>
+
+            <div className="button-container">
+              <button type="button" className="btn btn--primary btn--medium" onClick={() => openModal()}>Manual Thresholds</button>
+            </div>
           </div>
+          {threholdsNotInUse && (
+            <div className="Notice">
+              <p>
+                * Manual Thresholds are used
+              </p>
+            </div>
+          )}
         </div>
 
         {/* no need to validate here */}
