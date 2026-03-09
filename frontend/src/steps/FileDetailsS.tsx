@@ -109,12 +109,12 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
         ...vectors
       ]);
 
-      const thresholds = Object.keys(state.thresholds).length === 0 ? vectorsHeaders.reduce((acc, header) => ({...acc, [header]: {pos: data.positiveThreshold, neg: data.negativeThreshold} as threshMap}), {}) as {[key: string]: threshMap} : state.thresholds;
+      const thresholds = Object.keys(state.thresholds).length === 0 ? vectorsHeaders.reduce((acc, header) => ({...acc, [header]: {pos: Number(data.positiveThreshold), neg: Number(data.negativeThreshold)} as threshMap}), {}) as {[key: string]: threshMap} : state.thresholds;
 
       console.log("thresholds: ", thresholds);
 
       actions.updateFileDetails({
-        scoreThreshold: data.scoreThreshold,
+        scoreThreshold: Number(data.scoreThreshold),
         organism: selectedOption,
         vectorsHeaders: vectorsHeaders,
         thresholds: thresholds,

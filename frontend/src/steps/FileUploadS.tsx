@@ -9,7 +9,7 @@ import { getExampleFile } from "../common/ExampleFileAction";
 import { set, setMany, clear } from "idb-keyval";
 import { INamesStringMap, threshMap } from "../@types/global";
 
-import { defaultScoreThrehold, defaultThresholds, MAX_LINES_PER_FILE, NO_STRING_ID, NO_STRING_NAME, SAVED_NAMES_COLUMN_TITLE, SAVED_NEG_THRESHOLD_TITLE, SAVED_NUMERIC_COLUMN_PREFIX_TITLE, SAVED_ORGANISM_TITLE, SAVED_POS_THRESHOLD_TITLE, SAVED_STRING_ID_TITLE, SAVED_STRING_NAME_TITLE, SAVED_STRING_SCORE_THRESHOLD_TITLE } from "../Constants";
+import { defaultThresholds, MAX_LINES_PER_FILE, NO_STRING_ID, NO_STRING_NAME, SAVED_NAMES_COLUMN_TITLE, SAVED_NEG_THRESHOLD_TITLE, SAVED_NUMERIC_COLUMN_PREFIX_TITLE, SAVED_ORGANISM_TITLE, SAVED_POS_THRESHOLD_TITLE, SAVED_STRING_ID_TITLE, SAVED_STRING_NAME_TITLE, SAVED_STRING_SCORE_THRESHOLD_TITLE } from "../Constants";
 import { OptionType } from "../@types/json";
 
 const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
@@ -273,7 +273,7 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       row.splice(1, 2);
     });
 
-    headers = headers.filter(h => h !== "STRING id" && h !== "STRING Name");
+    headers = headers.filter(h => h !== SAVED_STRING_ID_TITLE && h !== SAVED_STRING_NAME_TITLE);
     console.log("headers: ", headers);
     actions.updateFileUpload({headers: headers});
     await setMany([

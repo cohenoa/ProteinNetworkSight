@@ -63,6 +63,7 @@ export function updateSavedFileUpload(
     vectorsPrefix: string
   }
 ): GlobalState {
+  console.log(payload);
     return {
     ...state,
     ...payload,
