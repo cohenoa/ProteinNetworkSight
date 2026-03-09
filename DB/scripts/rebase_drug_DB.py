@@ -16,7 +16,7 @@ skim_df = df[source["wanted_columns"]]
 target_product_map = get_reverse_drugs_map(skim_df, columns=source["wanted_columns"], drugBankIdFormat="tag", seperator=source["seperator"], drugBankIdExceptions=source["drugBankIdExceptions"])
 unique_protein_names = set([key for key in target_product_map.keys()])
 
-with open_conn("DB/database.example.ini") as conn:
+with open_conn("DB/database.prod.ini") as conn:
     cur = conn.cursor()
     reset_table(cur, "items", "drugs")
     conn.commit()

@@ -29,16 +29,12 @@ const GraphExplanation: FC = () => {
           Network nodes represent proteins \ genes.
         </li>
         <li className="must-item">
-          <i className="fa fa-question-circle-o" style={{ color: "black" }} />
-          Missing nodes passed the thresholds but have no STRING match. Find them a match in the previous step to see them on the graph.
-        </li>
-        <li className="must-item">
           <i className="fa fa-circle" style={{ color: "blue" }} />
-          Blue node - positive value.
+          Blue node - positive value(default).
         </li>
         <li className="must-item">
           <i className="fa fa-circle" style={{ color: "red" }} />
-          Red node - negative value.
+          Red node - negative value(default).
         </li>
         <li className="must-item">
           <i className="fa fa-circle-thin" style={{ fontSize: "25px" }} />
@@ -47,6 +43,14 @@ const GraphExplanation: FC = () => {
         <li className="must-item">
           <i className="fa fa-info" style={{ fontSize: "25px" }} />
           Click a node to view its details, and access related resources(UniProt, drugBank)
+        </li>
+        <li className="must-item">
+          <i className="fa fa-question-circle-o" style={{ color: "black" }} />
+          “Missing Nodes” lists proteins that passed the threshold filtering but could not be matched to entries in STRING. Assign an identifier to these proteins in Step 4 to include them in the analysis.
+        </li>
+        <li className="must-item">
+          <i className="fa fa-question-circle-o" style={{ color: "black" }} />
+          “Nodes worth reviewing” lists proteins in the network that were matched with an alternative name in step 3, and you might not have reviewed their accuracy.
         </li>
         <span>Edges:</span>
         <li className="must-item">

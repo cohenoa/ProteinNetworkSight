@@ -21,38 +21,102 @@ const SaveData = forwardRef((props, ref) => {
     const [replacementMap, setReplacementMap] = useState<{ [key: string]: replaceNameStatus }>({});
     const [unMatchedMap, setUnMatchedMap] = useState<{ [key: string]: nameStatus }>({});
 
+    async function getMainContent(){
+        const headersValues = columnsToRows(await getMany(state.headers.map((header) => header + "_data")));
+        const [namesStringMap, proteinsNames] = await getMany(["namesStringMap", "proteinsNames"]);
+
+        let content = [['UID', 'STRING Name', 'STRING id'].concat(state.vectorsHeaders)];
+
+        (proteinsNames as string[]).forEach((name, index) => {
+            if (name in unMatchedMap && unMatchedMap[name].accepted) return;
+            const match = namesStringMap[name];
+
+            let orgName = name;
+            let orgSTRINGname = match.stringName;
+            let orgSTRINGId = String(match.stringId);
+
+            if (orgSTRINGId === String(NO_STRING_ID)) {
+                orgSTRINGname = "";
+                orgSTRINGId = "";
+            };
+
+            if (name in replacementMap && replacementMap[name].accepted) {
+                orgName = replacementMap[name].string_name
+            }
+
+            content.push([orgName, orgSTRINGname, orgSTRINGId, ...headersValues[index]]);
+        })
+        return content;
+    }
+
+    function getThresholdsContent(){
+        let content = [['Threshold\\Header'].concat(state.vectorsHeaders)];
+
+        const posThresh = Object.entries(state.thresholds).map(([key, value]) => String(value.pos));
+        content.push(["Positive Threshold"].concat(posThresh));
+
+        const negThresh = Object.entries(state.thresholds).map(([key, value]) => String(value.neg));
+        content.push(["Negative Threshold"].concat(negThresh));
+
+        return content;
+    }
+
+    function getMetaDataContent(){
+        let content = [["STRING Score Threshold", String(state.scoreThreshold)]];
+
+        content.push(["Organism", String(state.organism.label), String(state.organism.value)]);
+
+        content.push(["Numerical Column Prefix", String(state.vectorsPrefix)]);
+
+        content.push(["Names Column", String(state.idHeader)]);
+
+        return content;
+    }
+
     useImperativeHandle(ref, () => ({
         getFormData: async () => {
             actions.updateIsLoading({ isLoading: true });
 
-            const headersValues = columnsToRows(await getMany(state.headers.map((header) => header + "_data")));
-            const [namesStringMap, proteinsNames] = await getMany(["namesStringMap", "proteinsNames"]);
+            // const headersValues = columnsToRows(await getMany(state.headers.map((header) => header + "_data")));
+            // const [namesStringMap, proteinsNames] = await getMany(["namesStringMap", "proteinsNames"]);
 
-            let xlsxContent = [['UID', 'STRING Name', 'STRING id'].concat(state.vectorsHeaders)];
+            // let mainContent = [['UID', 'STRING Name', 'STRING id'].concat(state.vectorsHeaders)];
+            // let metaDataContent = [['SETTING\\HEADER'].concat(state.vectorsHeaders)];
 
-            (proteinsNames as string[]).forEach((name, index) => {
-                if (name in unMatchedMap && unMatchedMap[name].accepted) return;
-                const match = namesStringMap[name];
+            // (proteinsNames as string[]).forEach((name, index) => {
+            //     if (name in unMatchedMap && unMatchedMap[name].accepted) return;
+            //     const match = namesStringMap[name];
 
-                let orgName = name;
-                let orgSTRINGname = match.stringName;
-                let orgSTRINGId = String(match.stringId);
+            //     let orgName = name;
+            //     let orgSTRINGname = match.stringName;
+            //     let orgSTRINGId = String(match.stringId);
 
-                if (orgSTRINGId === String(NO_STRING_ID)) {
-                    orgSTRINGname = "";
-                    orgSTRINGId = "";
-                };
+            //     if (orgSTRINGId === String(NO_STRING_ID)) {
+            //         orgSTRINGname = "";
+            //         orgSTRINGId = "";
+            //     };
 
-                if (name in replacementMap && replacementMap[name].accepted) {
-                    orgName = replacementMap[name].string_name
-                }
+            //     if (name in replacementMap && replacementMap[name].accepted) {
+            //         orgName = replacementMap[name].string_name
+            //     }
 
-                xlsxContent.push([orgName, orgSTRINGname, orgSTRINGId, ...headersValues[index]]);
-            })
+            //     mainContent.push([orgName, orgSTRINGname, orgSTRINGId, ...headersValues[index]]);
+            // })
+
+            const mainContent = await getMainContent();
+            const thresholdsContent = getThresholdsContent();
+            const metaDataContent = getMetaDataContent();
+
       
-            const worksheet = utils.aoa_to_sheet(xlsxContent);
             const workbook = utils.book_new();
+            const worksheet = utils.aoa_to_sheet(mainContent);
             utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+            const worksheet2 = utils.aoa_to_sheet(thresholdsContent);
+            utils.book_append_sheet(workbook, worksheet2, "Sheet2");
+
+            const worksheet3 = utils.aoa_to_sheet(metaDataContent);
+            utils.book_append_sheet(workbook, worksheet3, "Sheet3");
         
             // Create a Blob from the workbook
             const file = write(workbook, { bookType: "xlsx", type: "array" });
