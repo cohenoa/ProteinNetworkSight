@@ -1,3 +1,4 @@
+import React from "react";
 import { FC, useEffect, useState } from "react";
 import { GraphDataMem, ICustomGraphData } from "../@types/graphs";
 import VectorsButtons from "../bars/VectorsButtons";
@@ -10,12 +11,13 @@ import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import "../styles/Result.css";
 import ErrorScreen from "../components/ErrorScreen";
 import CytoscapejsComponentself from "../components/Cytoscapejs";
-import { update } from 'idb-keyval';
+import { set, update } from 'idb-keyval';
 import { threshMap, Missing } from "../@types/global";
-import { IStepProps } from "../@types/props";
+import { graphRef, IStepProps } from "../@types/props";
 import TooManyPopUp from "../components/tooManyPopUp";
 
 import { getGraphOfVector } from "../common/Helpers";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({
@@ -38,6 +40,8 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     pos: state.thresholds[clickedVector].pos,
     neg: state.thresholds[clickedVector].neg,
   });
+
+  const [currGraphRef, setCurrGraphRef] = useState<graphRef>(React.createRef<graphRef>() as graphRef);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,12 +130,34 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
     actions.updateIsLoading({ isLoading: false });
   };
 
+  const setClickedVectorWrapper = (vector: string) => {
+    currGraphRef.current?.stopLayout();
+    setTimeout(() => {
+      setClickedVector(vector);
+    }, 500);
+    
+  }
+
+  const setOpenTableWrapper = (open: boolean) => {
+    currGraphRef.current?.stopLayout();
+    setTimeout(() => {
+      setOpenTable(open);
+    }, 500);
+  }
+
+  const setThresholdsWrapper = (thresholds: threshMap) => {
+    currGraphRef.current?.stopLayout();
+    setTimeout(() => {
+      setThresholds(thresholds);
+    }, 500);
+  }
+
   return (
     <div className="result-container">
       <div className="vector-bar">
         <VectorsButtons
           vectorsValues={state.vectorsHeaders}
-          setClickedVector={setClickedVector}
+          setClickedVector={setClickedVectorWrapper}
           clickedVector={clickedVector}
         />
       </div>
@@ -142,25 +168,28 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           <div className="graph-buttons">
             <GraphBar
               openTable={openTable}
-              setOpenTable={setOpenTable}
+              setOpenTable={setOpenTableWrapper}
               nodesNum={graphData.nodes.length}
               linksNum={graphData.links.length}
               missingNodes={missingNodes}
               alternativeNames={alternativeNames}
               thresholds={thresholds}
-              setThresholds={setThresholds}
+              setThresholds={setThresholdsWrapper}
             />
           </div>
           <div className="graph-canvas">
             {error && <ErrorScreen />}
             {!error && openTable && <TableComponent data={graphData} />}
-            {!error && !openTable && font && (
-              <CytoscapejsComponentself
-                graphData={graphData}
-                clickedVector={clickedVector}
-                alertLoading={() => {}}
-              />
-            )}
+            <div className={openTable ? "graph-canvas-hidden" : "graph-canvas-visible"}>
+              {!error && font && (
+                <CytoscapejsComponentself
+                  graphData={graphData}
+                  clickedVector={clickedVector}
+                  alertLoading={() => {}}
+                  ref={currGraphRef}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}

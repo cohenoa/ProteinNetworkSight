@@ -24,3 +24,19 @@
     height: calc(100% - 85px);
     width: 100%;
 }
+
+.graph-canvas-visible{
+    height: 100%;
+    width: 100%;
+}
+
+.graph-canvas-hidden{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    visibility: hidden;
+    height: 60%;
+    width: 60%;
+    overflow-y: scroll;
+}

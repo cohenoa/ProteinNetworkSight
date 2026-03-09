@@ -98,15 +98,18 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
         return;
       }
 
+      let pass: boolean = false;
       if (fileType === "xlsx") {
-        await processXLSXFile(e.target.result as ArrayBuffer);
+        pass = await processXLSXFile(e.target.result as ArrayBuffer);
       } 
       else if (fileType === "csv") {
-        await processCSVFile(e.target.result as string);
+        pass = await processCSVFile(e.target.result as string);
       }
       else if (fileType === "tsv"){
-        await processTSVFile(e.target.result as string);
+        pass = await processTSVFile(e.target.result as string);
       }
+      console.log("pass", pass);
+      if (!pass) return;
       goNextStep();
     };
 
@@ -131,24 +134,40 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     const metaDataWorksheet = workbook.Sheets[metaDataSheetName];
     const metaDataFileData = utils.sheet_to_json(metaDataWorksheet, { header: 1 }) as any[][];
 
-    await processParsedData(fileData);
+    if (!await processParsedData(fileData)) return false;
     processMetaDataData(metaDataFileData, thresholdsFileData);
+    return true;
   };
 
   const processCSVFile = async (data: string) => {
     const fileData = data.split("\n").map(row => row.split(","));
-    await processParsedData(fileData);
+    return await processParsedData(fileData)? true : false;
   };
 
   const processTSVFile = async (data: string) => {
     const fileData = data.split("\n").map(row => row.split("\t"));
-    await processParsedData(fileData);
+    return await processParsedData(fileData)? true : false;
   };
 
   const processParsedData = async (fileData: any[][]) => {
     const { filtered_data, num_invalid, num_duplicates} = filterInvalidAndDuplicatData(fileData);
     fileData = filtered_data;
+    
+    console.log("length check");
+    console.log(fileData.length);
+    if (fileData.length > MAX_LINES_PER_FILE) {
+      setHasError(`File exceeds ${MAX_LINES_PER_FILE} rows. Please split it.`);
+      return false;
+    }
 
+    console.log("header check");
+    const headers = fileData.shift() as string[];
+    if (!headers || headers.length < 2) {
+      setHasError("Invalid file structure: must have at least two columns.");
+      return false;
+    }
+
+    console.log("warning check");
     if (num_duplicates > 0 || num_invalid > 0) {
       let warning_string = "";
       if (num_invalid > 0){
@@ -160,19 +179,8 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       warning_string += "click next again to continue.";
       if (!hasWarning){
         setHasWarning(warning_string);
-        return;
+        return false;
       }
-    }
-    
-    if (fileData.length > MAX_LINES_PER_FILE) {
-      setHasError(`File exceeds ${MAX_LINES_PER_FILE} rows. Please split it.`);
-      return;
-    }
-
-    const headers = fileData.shift() as string[];
-    if (!headers || headers.length < 2) {
-      setHasError("Invalid file structure: must have at least two columns.");
-      return;
     }
 
     if (headers.includes(SAVED_STRING_NAME_TITLE) && headers.includes(SAVED_STRING_ID_TITLE)) {
@@ -180,9 +188,12 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     } else {
       await uploadFileData(fileData, headers);
     }
+    return true;
   };
 
   const processMetaDataData = (metaDataFileData: any[][], thresholdsFileData: any[][]) => {
+    if (!metaDataFileData.length) return false;
+    if (!thresholdsFileData.length) return false;
     let scoreThrehold: number = state.scoreThreshold;
     let organism: OptionType = state.organism;
     let numericalColumnPrefix: string = state.vectorsPrefix;
@@ -222,6 +233,7 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     });
 
     actions.updateSavedFileUpload({scoreThreshold: scoreThrehold, organism: organism, vectorsHeaders: headerRow, thresholds: thresholds, idHeader: namesColumn, vectorsPrefix: numericalColumnPrefix});
+    return true;
   }
 
   function filterInvalidAndDuplicatData(data: any[][]): { filtered_data: any[][], num_invalid: number, num_duplicates: number } {

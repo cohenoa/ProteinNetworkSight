@@ -29,7 +29,8 @@ interface GraphExposedMethods extends HTMLDivElement {
   applyOpacity: (op: SupportedOpacity) => void,
   applyNodeColor: (type: 'pos' | 'neg', color: SupportedNodeColor) => void
   getGraphBlob: (type: downloadFileTypes) => Blob | null,
-  layoutRender: () => void
+  layoutRender: () => void,
+  stopLayout: () => void
 }
 
 export interface graphRef extends React.RefObject<HTMLDivElement>{
@@ -74,19 +75,19 @@ export interface IButtonsProps{
 
 export interface IVectorsButtonsProp {
   vectorsValues: string[];
-  setClickedVector: React.Dispatch<React.SetStateAction<string>>;
+  setClickedVector: (vector: string) => void;
   clickedVector: string;
 }
 
 export interface IGraphBarProps {
   openTable: boolean;
-  setOpenTable: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenTable: (open: boolean) => void;
   nodesNum: number;
   linksNum: number;
   missingNodes: Missing;
   alternativeNames: [string, string][];
   thresholds: threshMap;
-  setThresholds: React.Dispatch<React.SetStateAction<threshMap>>;
+  setThresholds: (thresholds: threshMap) => void;
 }
 
 export interface ISwitchableProps {

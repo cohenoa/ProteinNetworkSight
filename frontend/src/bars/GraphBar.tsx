@@ -41,7 +41,7 @@ const GraphBar: FC<IGraphBarProps> = ({
         <div className="btns-container">
           <button
             className="btn btn--outline btn--wide"
-            onClick={() => setOpenTable((prev) => !prev)}
+            onClick={() => setOpenTable(!openTable)}
           >
             {openTable ? "Show as graph" : "Show as Table"}
           </button>

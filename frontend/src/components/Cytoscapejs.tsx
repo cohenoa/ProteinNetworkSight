@@ -60,6 +60,8 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   const [curLayout, setCurLayout] = useState<SupportedLayout>(supportedSettings.layouts.CIRCLE);
   const [showingSTRINGNames, setShowingSTRINGNames] = useState<boolean>(false);
 
+  const layoutRef = useRef<any>(null);
+
   const [myStyle, setMyStyle] = useState<CytoscapeStyle[]>([
     {
       selector: "node",
@@ -129,7 +131,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       
       
       cy.on('free', 'node', (event) => {
-        // node dropped
         setCurLayout(supportedSettings.layouts.PRESET);
       });
 
@@ -221,7 +222,8 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         console.log("no nodes and cise");
         return
       };
-      cyRef.current?.layout(layout).run();
+      layoutRef.current = cyRef.current?.layout(layout);
+      if (layoutRef.current) layoutRef.current.run();
     }
     catch (error) {
       console.error("Error applying layout", error);
@@ -368,6 +370,29 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       console.log("no cy");
     }
   };
+
+  const stopLayout = () => {
+    console.log("stopLayout");
+    console.log("cyRef.current", cyRef.current);
+    try{
+      const layout = layoutRef.current;
+      const cy = cyRef.current;
+
+      if (layout) {
+        console.log("stopping layout");
+        layout.stop();
+        layout.off();
+      }
+
+      if (cy && !cy.destroyed()) {
+        console.log("destroying cytoscape");
+        cy.destroy();
+      }
+    }
+    catch (error) {
+      console.error("Error stopping layout", error);
+    }
+  }
   
   {/* @ts-ignore */}
   useImperativeHandle(ref, () => ({
@@ -378,6 +403,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     applyNodeColor,
     getGraphBlob,
     layoutRender,
+    stopLayout,
   }));
 
   // right click menu
@@ -385,7 +411,9 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     {
       label: 'Layout',
       icon: faDiagramProject,
-      submenu: Object.values(supportedSettings.layouts).filter(option => option !== supportedSettings.layouts.PRESET).map((option) => ({ label: option, icon: faDiagramProject, onClick: () => {applyLayout(option, true)}}))
+      submenu: Object.values(supportedSettings.layouts).filter(option => option !== supportedSettings.layouts.PRESET).map((option) => ({ label: option, icon: faDiagramProject, onClick: () => {
+        setTimeout(() => {applyLayout(option, true)}, 100);
+      }}))
     },
     {
       label: 'Link Opacity',
