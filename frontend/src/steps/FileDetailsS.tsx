@@ -42,14 +42,12 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
 
   const collectThresholds = async (thresholds: Array<Array<number>>) => {
     const mappedThresholds = thresholds.map((item, index) => ({[`${state.headers[index + 1]}`]: item}));
-    console.log("mappedThresholds: ", mappedThresholds);
     const resultObject = mappedThresholds.reduce((acc, item) => {
       const key = Object.keys(item)[0];
       acc[key] = {pos: item[key][0], neg: item[key][1]};
       return acc;
     }, {} as { [key: string]: threshMap });
     actions.updateThresholds({thresholds: resultObject});
-    console.log("resultObject: ", resultObject);
     closeModal();
     setThreholdsNotInUse(true);
     return resultObject
@@ -70,8 +68,6 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
       const headers = state.headers;
 
       const idIndex = state.headers.indexOf(data.idHeader);
-      console.log(data.idHeader);
-      console.log(state.headers);
 
       // Normalize protein names
       const proteins = normalizeProteins(rawProteins, idIndex);
@@ -100,18 +96,12 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
         vectors.push([header + "_data", col]);
       }
 
-      console.log("vectorsHeaders: ", vectorsHeaders);
-      console.log("vectors: ", vectors);
-
-
       await setMany([
         ["proteinsNames", proteinsNames],
         ...vectors
       ]);
 
       const thresholds = Object.keys(state.thresholds).length === 0 ? vectorsHeaders.reduce((acc, header) => ({...acc, [header]: {pos: Number(data.positiveThreshold), neg: Number(data.negativeThreshold)} as threshMap}), {}) as {[key: string]: threshMap} : state.thresholds;
-
-      console.log("thresholds: ", thresholds);
 
       actions.updateFileDetails({
         scoreThreshold: Number(data.scoreThreshold),
@@ -177,8 +167,6 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
 
     return result;
   }
-
-  console.log(state);
   
   return (
     <form
@@ -199,7 +187,6 @@ const FileDetailsStep: FC<IStepProps> = ({ step, goNextStep }) => {
             required
             {...register("idHeader", {
               validate: { header: (v) => {
-                console.log(state.headers);
                 return state.headers.includes(v)
               } },
             })}

@@ -47,12 +47,11 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           loader.load(
             "https://threejs.org/examples/fonts/optimer_regular.typeface.json",
             (loaded_font) => {
-              console.log("loaded font");
               setFont(loaded_font);
             }
           );
       } catch (err) {
-        console.log('It failed!', err);
+        console.log('failed loading font!', err);
         return;
       }
     };
@@ -83,8 +82,6 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           }
         }
       });
-      
-      console.log("changed thresholds");
     }
   }, [thresholds]);
 
@@ -95,9 +92,8 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   };
 
   const getGraphData = (vector: string) => {
-    console.log("getting graph data");
+    console.log("getting graph data for vector: ", vector);
     setError(false);
-    console.log(vector);
     actions.updateIsLoading({ isLoading: true });
 
     getGraphOfVector(vector, state.thresholds[vector], state.scoreThreshold, state.tooManyModal[vector] < 0, handleJsonGraphData, handleError).then((res) => {

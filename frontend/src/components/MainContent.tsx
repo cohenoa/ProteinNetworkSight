@@ -141,7 +141,6 @@ const MainContent = () => {
           else{
             console.log("formRef is null: " + saveFormRef);
           }
-          console.log('clicked button');
         },
       }
       bar.push(saveButton);

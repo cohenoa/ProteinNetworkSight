@@ -13,11 +13,7 @@ enum SaveMode {
 }
 
 const SaveResults: FC<formRefProps> = ({ formRef }) => {
-
     const [mode, setMode] = useState(SaveMode.data);
-
-    console.log("save results ref: ", formRef);
-
 
     const renderSaveModel = () => {
         switch (mode) {

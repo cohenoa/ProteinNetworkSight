@@ -28,9 +28,6 @@ const ThresholdsModal: React.FC<ThresholdsModalProps> = ({ isOpen, onClose, onCo
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
     zIndex: 1000,
   };
-  
-  console.log(defaultValues);
-  console.log("thresholds: ", thresholds);
 
   const handleInputChange = (rowIndex: number, colIndex: number, value: String) => {
     thresholds[rowIndex][colIndex] = Number(value);

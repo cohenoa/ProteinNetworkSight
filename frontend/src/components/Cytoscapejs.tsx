@@ -144,9 +144,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       cyRef.current.on("click", "node", (event) => {
         const node = event.target;
         console.log("clicked node", node.id());
-        console.log("graph data nodes", graphData.nodes);
         const clickedNode = (graphData.nodes as ICustomNode[]).find((n: ICustomNode) => n.id === node.id());
-        console.log("clicked node", clickedNode);
         setSelectedNode({...clickedNode} as ICustomNode);
         setOpenPanel(true);
       });
@@ -155,7 +153,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   );
 
   const createNodes = (elements: Array<any>, nodes: ICustomNode[]) => {
-    console.log("nodes: ", nodes);
     nodes.forEach((node) => 
       elements.push({
         data: {
@@ -168,6 +165,7 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         },
       })
     );
+    console.log("nodes: ", nodes);
   };
 
   // The function create the links data for the elements array
@@ -191,7 +189,6 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
       const newElements: any[] = [];
       createNodes(newElements, graphData.nodes);
-      console.log(newElements);
       createLinks(newElements, graphData.links);
       
       setElements(newElements);
@@ -217,9 +214,9 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
 
   const layoutRender = () => {
     console.log("applying layout");
+    console.log("layout name", layout.name);
+    console.log("graph data nodes", graphData.nodes);
     try {
-      console.log("layout name", layout.name);
-      console.log("graph data nodes", graphData.nodes);
       if (graphData.nodes.length === 0 && layout.name === supportedSettings.layouts.CISE) {
         console.log("no nodes and cise");
         return

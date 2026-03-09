@@ -57,7 +57,6 @@ const Panel: FC<IPanelProps> = ({ node, organism, onClickClose }) => {
 
       // Build the final UniProt entry URL
       const entryUrl = `https://www.uniprot.org/uniprotkb/${primaryAccession}/entry`;
-      console.log(entryUrl);
       window.open(entryUrl, "_blank");
     } catch (err) {
       alert("Error fetching Uniprot link: " + err);

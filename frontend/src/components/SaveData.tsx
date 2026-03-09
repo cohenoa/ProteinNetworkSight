@@ -153,10 +153,9 @@ const SaveData = forwardRef((props, ref) => {
 
         console.log(altmap);
         console.log(manmap);
-        let replacementMap: { [key: string]: replaceNameStatus } = {...manmap, ...altmap};
-
-        console.log(replacementMap);
         console.log(unMatched);
+        let replacementMap: { [key: string]: replaceNameStatus } = {...manmap, ...altmap};
+        console.log(replacementMap);
 
         setReplacementMap(replacementMap);
         setUnMatchedMap(unMatched);

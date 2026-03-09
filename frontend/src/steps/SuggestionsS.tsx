@@ -45,9 +45,7 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
 
   const setupSuggestions = async () => {
     let proteinsNames = await get("proteinsNames")
-    console.log("names: ", proteinsNames);
     setProteinsNames(proteinsNames);
-    console.log("state: ", state);
     if (!state.isSetSuggestions) {
       const body = JSON.stringify({
         org_names: proteinsNames,
@@ -58,6 +56,7 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
 
       makePostRequest(body, "names", handleSuggestionsJson);
     } else {
+      console.log("loading suggestion from memory");
       const [suggestionsObjMem, namesStringMapMem] = await getMany(["suggestionsObj", "namesStringMap"]);
       console.log("suggestionsObj: ", suggestionsObjMem);
       console.log("namesStringMap: ", namesStringMapMem);
@@ -89,11 +88,6 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
         else if ( Object.keys(suggestionsObj.alternative_match).includes(orgName)) {
           const suggestions = suggestionsObj.alternative_match[orgName];
           const sugFirstKey = Object.keys(suggestions)[0];
-          if (orgName == "ACC1"){
-            console.log("for acc1 2: ", suggestions);
-            let a = suggestions[sugFirstKey];
-            console.log(suggestions[sugFirstKey]);
-          }
           namesStringMap_build[orgName] = {
             stringName: sugFirstKey,
             stringId: suggestions[sugFirstKey],
@@ -106,7 +100,6 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
           };
         }
       })
-      console.log("namesStringMap_build: ", namesStringMap_build);
       set("namesStringMap", namesStringMap_build);
       setNamesStringMap(namesStringMap_build);
     }
@@ -137,9 +130,6 @@ const SuggestionsS: FC<IStepProps> = ({ step, goNextStep }) => {
             Object.keys(suggestionsObj.alternative_match).map((orgName) => {
               const suggestions = suggestionsObj.alternative_match[orgName];
               let selectedName = Object.keys(suggestions)[0];
-              if (orgName == "ACC1"){
-                console.log("for acc1: ", namesStringMap);
-              }
               if (namesStringMap !== undefined && namesStringMap[orgName] !== undefined) {
                 selectedName = namesStringMap[orgName].stringName;
               }

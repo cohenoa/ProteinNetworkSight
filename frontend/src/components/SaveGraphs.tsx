@@ -110,7 +110,6 @@ const SaveGraphs = forwardRef((props, ref) => {
             newGraphStatus[header].fileType.current = newGraphStatus[header].fileType.default;
         }
 
-        console.log("apply all: ", applyAllStatus);
         console.log("graphs status: ", newGraphStatus);
 
         setGraphsStatus(newGraphStatus);

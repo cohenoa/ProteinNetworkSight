@@ -76,7 +76,6 @@ export async function getGraphOfVector(
         });
 
         if (idsList.length > MAX_NODES_PER_GRAPH && !ignoreMissing){
-            console.log("too many nodes(" + idsList.length + ")");
             return idsList.length;
         }
 
@@ -96,6 +95,7 @@ export async function getGraphOfVector(
             ids: idsList,
             string_names: stringNames,
         };
+        
         console.log("body", body);
 
         makePostRequest(JSON.stringify(body), "graphs", handleData, handleError);

@@ -10,10 +10,6 @@ import { NO_STRING_ID, NO_STRING_NAME } from "../Constants";
 const Switchable: FC<ISwitchableProps> = ({setNamesStringMap, orgName, suggestions, selected}) => {
   const valDelim = ":";
 
-  if (orgName === "ACC1"){
-    console.log("selected: ", selected);
-  }
-
   const createValue = (strName: string, strId: number) => {
     return orgName + valDelim + strName + valDelim + String(strId);
   };

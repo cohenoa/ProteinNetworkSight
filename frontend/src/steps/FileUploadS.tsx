@@ -66,7 +66,6 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
 
     if (isExampleFile) {
       console.log("using example file");
-      // actions.updateFileUpload(getExampleFile());
       const {json, headers} = getExampleFile();
       actions.updateFileUpload({headers: headers});
       set("json", json).then(() => {
@@ -205,7 +204,6 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     
     const headerRow = thresholdsFileData[0];
     headerRow.shift();
-    console.log(headerRow);
     const thresholds: { [key: string]: threshMap } = Object.fromEntries(
       headerRow.map((header: any) => [header, {...defaultThresholds}])
     );
@@ -213,8 +211,6 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     thresholdsFileData.forEach(row => {
       if (row[0] === SAVED_POS_THRESHOLD_TITLE){
         for (let i = 0; i < headerRow.length; i++){
-          console.log(thresholds[headerRow[i]]);
-          console.log(headerRow[i]);
           thresholds[headerRow[i]].pos = Number(row[i + 1]);
         }
       }
@@ -225,12 +221,6 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       }
     });
 
-    console.log("thresholds: ", thresholds);
-    console.log("scoreThrehold: ", scoreThrehold);
-    console.log("organism: ", organism);
-    console.log("numericalColumnPrefix: ", numericalColumnPrefix);
-    console.log("namesColumn: ", namesColumn);
-    console.log("vectorsHeaders: ", headerRow);
     actions.updateSavedFileUpload({scoreThreshold: scoreThrehold, organism: organism, vectorsHeaders: headerRow, thresholds: thresholds, idHeader: namesColumn, vectorsPrefix: numericalColumnPrefix});
   }
 
@@ -274,7 +264,6 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
     });
 
     headers = headers.filter(h => h !== SAVED_STRING_ID_TITLE && h !== SAVED_STRING_NAME_TITLE);
-    console.log("headers: ", headers);
     actions.updateFileUpload({headers: headers});
     await setMany([
       ["json", fileData],

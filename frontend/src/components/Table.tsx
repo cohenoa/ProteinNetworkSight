@@ -108,7 +108,6 @@ const TableComponent: FC<{data: ICustomGraphData}> = ({ data }) => {
 }
 
   useEffect(() => {
-    console.log(data.nodes);
     data.nodes.forEach((node) => {
       const row = buildRow(node);
       setRowData((prev) => [...prev, row]);
@@ -124,19 +123,15 @@ const TableComponent: FC<{data: ICustomGraphData}> = ({ data }) => {
   const onSortChanged = (e: SortChangedEvent) => {
     if(e.columnApi){
 
-      const sortState = e.columnApi
-        .getColumnState()
+      const sortState = e.columnApi.getColumnState()
       console.log(sortState);
-      // updateSortTable(state, { sortTable: sortState[0] });
       if(sortState !== undefined)
         actions.updateSortTable({ sortTable: sortState });
     }
-    // console.log("after Save", state.sortTable);
   }
   const onGridReady = (e: GridReadyEvent) => {
     console.log("onGridReady\n");
     e.columnApi.applyColumnState({state : state.sortTable});
-    console.log("after applay", e.columnApi.getColumnState());
     e.api.sizeColumnsToFit();
   };
 
