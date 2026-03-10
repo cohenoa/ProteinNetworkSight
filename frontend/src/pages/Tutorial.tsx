@@ -51,15 +51,15 @@ const Tutorial: FC = () => {
           <ol type="a">
             <li className="t-li">
               <a href={stringdbLink} target="_blank" rel="noreferrer">STRING-db</a> 
-              - a database of known and predicted protein-protein interactions.
+              &nbsp;- a database of known and predicted protein-protein interactions.
             </li>
             <li className="t-li">
               <a href={drugsDatabaseLink} target="_blank" rel="noreferrer">Cancer Drugs Database</a>
-              - a resource containing licensed anticancer drugs.
+              &nbsp;- a resource containing licensed anticancer drugs.
             </li>
             <li className="t-li">
               <a href={uniProtLink} target="_blank" rel="noreferrer">UniProt</a> 
-              - a protein sequence and functional information resource.
+              &nbsp;- a protein sequence and functional information resource.
             </li>
           </ol>
           <p className="t-p">
@@ -83,13 +83,8 @@ const Tutorial: FC = () => {
           <p className="t-p">
             To begin the analysis, users must upload an Excel, CSV or a TSV containing a single sheet of tabular data. 
             Each row should correspond to a protein or gene, and each column should represent a feature.
-            The file must contain no more than {MAX_LINES_PER_FILE} rows. One column should contain protein or gene identifiers, while additional columns should contain numeric values representing gene/protein scores or quantitative metrics. Examples include:
+            The file must contain no more than {MAX_LINES_PER_FILE} rows. One column should contain protein or gene identifiers, while additional columns should contain numeric values representing gene/protein scores or quantitative metrics.
           </p>
-          <ol>
-            <li className="t-li">loadings from Principal Component Analysis (PCA)</li>
-            <li className="t-li">weights derived from information-theoretic analyses</li>
-            <li className="t-li">fold-change values</li>
-          </ol>
           
             {/* where each row represents a protein/gene and the columns are features to be analysed. 
             The file should contain a column of protein/gene names as well as additional column(s) of numeric values. 
@@ -117,7 +112,9 @@ const Tutorial: FC = () => {
             In this dataset, the G columns represent protein weights derived from the information-theoretic analysis described in Vasudevan et al. 
             However, the format is flexible, and these columns may contain any quantitative scores, coefficients, or fold-change values, depending on the method used to identify co-expression patterns.
           </p>
-          <img className="t-img" src={example_rows} alt="example_rows" />
+          <a href={example_rows} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={example_rows} alt="example_rows" />
+          </a>
         </div>
         {/* Setting parameters and thresholds DIV */}
         <div>
@@ -142,18 +139,21 @@ const Tutorial: FC = () => {
               Organism of interest -For example, Homo sapiens in the example dataset.
             </li>
           </ol>
-          <img className="t-img" src={set_params} alt="set_params" />
+          <a href={set_params} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={set_params} alt="set_params" />
+          </a>
         </div>
         {/* Adjusting protein/gene names DIV */}
         <div>
           <h2 className="t-h2">Manual thresholds adjustments </h2>
           <p className="t-p">
           <li className="t-li">
-              You can also choose to adjust the thresholds of every G column in the graph
-              individually.
+              You can also choose to adjust the thresholds of every score (G in the example) column in the graph individually.
           </li>
           </p>
-          <img className="t-img" src={manual_thresholds} alt="manual_thresholds"/>
+          <a href={manual_thresholds} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={manual_thresholds} alt="manual_thresholds"/>
+          </a>
         </div>
         <div>
           <h2 className="t-h2">Adjusting protein/gene names </h2>
@@ -165,16 +165,25 @@ const Tutorial: FC = () => {
             Therefore, protein or gene identifiers in the input file should match the names used in STRING-db. 
             Because genes often have multiple synonyms, some identifiers in the input file may not match automatically. 
             The following steps highlight such cases and allow users to select alternative identifiers.
+            <br/>
+             in step 3, The system suggests alternative identifiers recognized by the STRING database. For each gene, users can choose one of the suggested identifiers or manually enter an alternative identifier.
           </p>
-          <img className="t-img" src={protein_names} alt="protein_names"/>
-          <img className="t-img" src={others} alt="others"/>
+          <a href={protein_names} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={protein_names} alt="protein_names"/>
+          </a>
+          <p className="t-p">
+              For genes for which no alternative identifier was found automatically, in step 4 users may manually enter a valid identifier. Genes that remain unmatched will be excluded from the network analysis.
+          </p>
+          <a href={others} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={others} alt="others"/>
+          </a>
         </div>
         {/* Results page DIV */}
         <div>
           <h2 className="t-h2">Results page</h2>
           <p className="t-p">
             The resulting network contains nodes representing proteins, where the node size is proportional to the input protein score.
-            Edges are derived from STRING-db, and edge width represents the probability of a protein-protein interaction.
+            Edges are derived from STRING, and edge width represents the probability of a protein-protein interaction.
             Results can be viewed and downloaded in either a tabular or network format.
             The network view provides an interactive visualization, allowing users to zoom, drag nodes, and explore the network structure.
             {/* The resulting network comprises nodes representing the input score
@@ -201,8 +210,12 @@ const Tutorial: FC = () => {
             <li className="t-li">Node color indicates the sign of the value (by default blue for positive values and red for negative values).</li>
             <li className="t-li">Edges represent functional protein-protein interactions, with edge width corresponding to the interaction probability.</li>
           </ul>
-          <img className="t-img" src={graph} alt="graph"/>
-          <img className="t-img" src={graph_bar} alt="graphBar"/>
+          <a href={graph_bar} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={graph_bar} alt="graphBar"/>
+          </a>
+          <a href={graph} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={graph} alt="graph"/>
+          </a>
           <p className="t-p">
             In the illustrated example, multiple protein interactions are shown. For example:, 
             
@@ -213,13 +226,8 @@ const Tutorial: FC = () => {
             a higher likelihood of interaction, as evidenced by the thicker edge connecting the two proteins. */}
           </p>
           <ul>
-            <li className="t-li">
-              TIGAR appears with a large positive value (blue node) and interacts with LKB1, which also has a positive but smaller value.
-            </li>
-            <li>TIGAR also interacts with GAPDH, which has a negative value (red node).</li>
-            <li>
-              ACC1 interacts with both BCL2 and FASN, with the thicker edge indicating a stronger interaction probability with BCL2.
-            </li>
+            <li className="t-li">TIGAR appears with a large positive value (blue node) and interacts with GAPDH, which has a smaller negative value.</li>
+            <li className="t-li">ACC1 interacts with FASN, LKB1 and GAPDH, with the thicker edge indicating a stronger interaction probability with FASN.</li>
           </ul>
           <p className="t-p">
             Clicking on a node reveals additional information about the corresponding protein.<br/>
@@ -232,12 +240,16 @@ const Tutorial: FC = () => {
             Multiple layout algorithms are available to organize the graph and reveal structural patterns.<br/>
             Presented below are three fundamental options that are broadly applicable to any graph.<br/>
           </p>
-          <img className="t-img" src={Menu_Geometric_Layout} alt="right_click_menu"/>
+          <a href={Menu_Geometric_Layout} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_Geometric_Layout} alt="Geometric layouts"/>
+          </a>
           <p className="t-p">
             Additionally, advanced layout options utilizing various clustering algorithms are available to provide an alternative visualization of the graph's structure.<br/>
             We recommend exploring each of these options, as they can uncover valuable insights and reveal unique properties of the graph.<br/>
           </p>
-          <img className="t-img" src={Menu_Cluster_Layout} alt="cluster_graph_layout"/>
+          <a href={Menu_Cluster_Layout} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_Cluster_Layout} alt="Cluster layouts"/>
+          </a>
 
           <p className="t-p">
             Further information about these layouts can be found in the <a href={cytoscapeLayoutsLink} target="_blank" rel="noreferrer">cytoscape.js layout documentation</a>.
@@ -257,7 +269,9 @@ const Tutorial: FC = () => {
             For users who prefer a simpler apprach, we also provide a Random layout, which randomly places the nodes on the graph.
             You can click it multiple times to see different random results.<br/>
           </p>
-          <img className="t-img" src={Menu_LCSL_Random} alt="LCSL"/>
+          <a href={Menu_LCSL_Random} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_LCSL_Random} alt="LCSL & random layouts"/>
+          </a>
 
           <h3 className="t-h3">Graph Appearance Options</h3>
           <p className="t-p">
@@ -267,27 +281,37 @@ const Tutorial: FC = () => {
           <p className="t-p">
             Node color allows selection of one of six predefined color schemes, applied separately to positive and negative nodes.<br/>
           </p>
-          <img className="t-img" src={Menu_Node_Color} alt="node color"/>
+          <a href={Menu_Node_Color} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_Node_Color} alt="node color"/>
+          </a>
 
           <p className="t-p">
             Node size adjusts the overall size of nodes while preserving their relative size differences.<br/>
           </p>
-          <img className="t-img" src={Menu_Node_Size} alt="node size"/>
+          <a href={Menu_Node_Size} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_Node_Size} alt="node size"/>
+          </a>
 
           <p className="t-p">
             Edge opacity controls the transparency of edges while maintaining their relative visibility.<br/>
           </p>
-          <img className="t-img" src={Menu_Edge_Opacity} alt="edge opacity"/>
+          <a href={Menu_Edge_Opacity} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_Edge_Opacity} alt="edge opacity"/>
+          </a>
 
           <p className="t-p">
             Once the graph reaches the desired configuration, it can be saved using the Save option in the menu.<br/>
           </p>
-          <img className="t-img" src={Menu_save_load} alt="cluster_graph_layout"/>
+          <a href={Menu_save_load} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_save_load} alt="save layout"/>
+          </a>
 
           <p className="t-p">
             <br/>You can also toggle the labels and switch between original and STRING names.<br/>
           </p>
-          <img className="t-img" src={Menu_change_names} alt="cluster_graph_layout"/>
+          <a href={Menu_change_names} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_change_names} alt="change names"/>
+          </a>
 
           <p className="t-p">
             Alternativly, if you wish to continue working in another app, or export the result for further analysis, you can download 
@@ -296,7 +320,9 @@ const Tutorial: FC = () => {
             2. a .png file(picture format)<br/>
             3. a .json file(data format)<br/>
           </p>
-          <img className="t-img" src={Menu_Download} alt="cluster_graph_layout"/>
+          <a href={Menu_Download} target="_blank" rel="noopener noreferrer">
+           <img className="t-img" src={Menu_Download} alt="download"/>
+          </a>
           
           <h3 className="t-h3">Table representation</h3>
           <p className="t-p">
@@ -307,7 +333,7 @@ const Tutorial: FC = () => {
               Original name - the identifier provided in the input file
             </li>
             <li className="t-li">
-              STRING name - the matched identifier according to STRING-db
+              STRING name - the matched identifier according to STRING
             </li>
             <li className="t-li">
               Node value - the input score (e.g., derived from PCA or surprisal analysis)
@@ -326,26 +352,32 @@ const Tutorial: FC = () => {
               <a href={drugsDatabaseLink} target="_blank" rel="noreferrer">Cancer Drugs Database</a>
             </li>
           </ul>
-          <img className="t-img" src={table} alt="table"/>
+          <a href={table} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={table} alt="table"/>
+          </a>
 
           <p className="t-p">
             Users can save their work by clicking Save at the bottom of the Results window.
           </p>
-          <img className="t-img" src={save_results_menu} alt="save_table"/>
+          <a href={save_results_menu} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={save_results_menu} alt="save_results"/>
+          </a>
 
           <h3 className="t-h3">Saving Data</h3>
           <p className="t-p">
             Before downloading the modified dataset, users can review and adjust gene name mappings to STRING identifiers.<br/>
             The left panel lists identifiers that have been matched or manually corrected. If desired, users can replace the original identifier with the STRING match using the arrow button.<br/>
-            The right panel lists identifiers that do not have a match in STRING-db.<br/>
+            The right panel lists identifiers that do not have a match in STRING.<br/>
             Since these proteins do not appear in the network graphs, they may be removed from the dataset if desired.<br/>
           </p>
 
           <p className="t-p">
             The resulting xlsx file also contains 2 seperate sheets for the hyper-parameters used.<br/>
             Note that it is un-advised to make changes to the downloaded file if you wish to upload it later to the platform for further analysis.<br/>
-          </p>  
-          <img className="t-img" src={download_data} alt="save_table"/>
+          </p>
+          <a href={download_data} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={download_data} alt="download data"/>
+          </a>  
           
           <h3 className="t-h3">Saving Graphs</h3>
           <p className="t-p">
@@ -354,7 +386,9 @@ const Tutorial: FC = () => {
             Selecting “Use preset when available” applies saved layouts only to graphs that do not already have a stored layout when using the apply all menu.<br/>
             If nodes were manually repositioned before saving, the custom layout will be preserved.<br/>
           </p>
-          <img className="t-img" src={Menu_SaveGraphs} alt="save_table"/>
+          <a href={Menu_SaveGraphs} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={Menu_SaveGraphs} alt="download graphs"/>
+          </a>
         </div>
         {/* Browser compatibility DIV */}
         <div>
