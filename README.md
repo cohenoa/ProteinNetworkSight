@@ -1,6 +1,6 @@
 # Code to accompany the paper: "ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization"
 
-Protein network sight for running the development server you can use the following commands on the branch layout-chooser.
+For running the development server you can use the following commands on the branch layout-chooser.
 
 This project contains both a frontend React app and a backend Flask API.
 
@@ -18,7 +18,7 @@ Backend The backend code is located in the backend folder. It contains a Flask A
 
 To run the backend:
 
-cd backend pip install -r requirements.txt python app.py
+`cd backend pip install -r requirements.txt python app.py`
 
 The Flask API will start on http://localhost:5000.
 
