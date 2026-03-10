@@ -1,3 +1,5 @@
+# Code to accompany the paper: ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization
+
 Protein network sight for running the development server you can use the following commands on the branch layout-chooser.
 
 This project contains both a frontend React app and a backend Flask API.
