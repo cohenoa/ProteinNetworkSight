@@ -65,7 +65,7 @@ export async function getGraphOfVector(
                 }
                 else{
                     const suggestions: {[key: string]: number} = suggestionsObj.alternative_match[orgName];
-                    if (suggestions && Object.keys(suggestions).includes(stringName)){
+                    if (suggestions && Object.keys(suggestions)[0] == stringName){
                         alternatives.push([orgName, stringName]);
                     }
                     idsList.push(stringId);

@@ -122,12 +122,10 @@ const Tutorial: FC = () => {
           <p className="t-p">In this step the user should specify:</p>
           <ol type="a">
             <li className="t-li">
-              Identifier column - The header name of the protein/gene identifier column
-              (e.g., “UID” in the example file).
+              Identifier column - The header name of the protein/gene identifier column (e.g., “UID” in the example file).
             </li>
             <li className="t-li">
-              Numeric column prefix - The prefix shared by the numeric columns
-              (e.g., “G”, where Gi represents the weight of each protein in patterns such as G1, G2, G3).
+              Numeric column prefix - The prefix shared by the numeric columns (e.g., “G”, where Gi represents the weight of each protein in patterns such as G1, G2, G3).
             </li>
             <li className="t-li">
               STRING interaction threshold - The lower limit for the STRING interaction score, representing the probability of interaction between pairs of proteins.
@@ -234,6 +232,13 @@ const Tutorial: FC = () => {
             Users can also drag nodes interactively to improve the layout and facilitate interpretation of the network.<br/>
           </p>
           <p className="t-p">
+            For the user's convinience, we provide 2 collapsable lists to help the user validate the accuracy of the network.<br/>
+            <ol>
+              <li className="t-li">Missing Nodes - A lists of nodes that could be included in the graph if the user matched them to a valid identifier in the previous step.</li>
+              <li className="t-li">Nodes worth reviewing - A list of nodes in the graph that the user might have missed validating their accuracy, because they were not inserted manually</li>
+            </ol>
+          </p>
+          <p className="t-p">
             The right-click context menu in the graph visualization allows users to modify visual properties and customize the appearance of the network.
           </p>
           <p className="t-p">
@@ -316,9 +321,9 @@ const Tutorial: FC = () => {
           <p className="t-p">
             Alternativly, if you wish to continue working in another app, or export the result for further analysis, you can download 
             the graph in one of 3 formats:<br/>
-            1. a .svg file(graph format)<br/>
-            2. a .png file(picture format)<br/>
-            3. a .json file(data format)<br/>
+            1. a .svg file (graph format)<br/>
+            2. a .png file (picture format)<br/>
+            3. a .json file (data format)<br/>
           </p>
           <a href={Menu_Download} target="_blank" rel="noopener noreferrer">
            <img className="t-img" src={Menu_Download} alt="download"/>
@@ -373,7 +378,7 @@ const Tutorial: FC = () => {
 
           <p className="t-p">
             The resulting xlsx file also contains 2 seperate sheets for the hyper-parameters used.<br/>
-            Note that it is un-advised to make changes to the downloaded file if you wish to upload it later to the platform for further analysis.<br/>
+            Note that it is unadvised to make changes to the downloaded file if you wish to upload it later to the platform for further analysis.<br/>
           </p>
           <a href={download_data} target="_blank" rel="noopener noreferrer">
             <img className="t-img" src={download_data} alt="download data"/>
@@ -382,7 +387,7 @@ const Tutorial: FC = () => {
           <h3 className="t-h3">Saving Graphs</h3>
           <p className="t-p">
             Users can also apply final adjustments before downloading the generated networks.<br/>
-            Global settings can be applied using the top menu(you must click apply for the settings to take effect).<br/>
+            Global settings can be applied using the top menu (you must click apply for the settings to take effect).<br/>
             Selecting “Use preset when available” applies saved layouts only to graphs that do not already have a stored layout when using the apply all menu.<br/>
             If nodes were manually repositioned before saving, the custom layout will be preserved.<br/>
           </p>

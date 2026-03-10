@@ -32,7 +32,12 @@ const GraphBar: FC<IGraphBarProps> = ({
   };
 
   const btnSubmitThresholds = () => {
-    setThresholds(tempThreashold);
+    if (tempThreashold.pos !== thresholds.pos || tempThreashold.neg !== thresholds.neg){
+      setThresholds(tempThreashold);
+    }
+    else{
+      alert("no changes detected");
+    }
   };
 
   return (
