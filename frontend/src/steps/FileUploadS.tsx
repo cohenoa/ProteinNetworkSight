@@ -223,12 +223,12 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
       thresholdsFileData.forEach(row => {
         if (row[0] === SAVED_POS_THRESHOLD_TITLE){
           for (let i = 0; i < headerRow.length; i++){
-            thresholds[headerRow[i]].pos = Number(row[i + 1]);
+            thresholds[headerRow[i]].pos = Number(row[row.indexOf(headerRow[i])]);
           }
         }
         if (row[0] === SAVED_NEG_THRESHOLD_TITLE){
           for (let i = 0; i < headerRow.length; i++){
-            thresholds[headerRow[i]].neg = Number(row[i + 1]);
+            thresholds[headerRow[i]].neg = Number(row[row.indexOf(headerRow[i])]);
           }
         }
       });

@@ -17,7 +17,6 @@ import { graphRef, IStepProps } from "../@types/props";
 import TooManyPopUp from "../components/tooManyPopUp";
 
 import { getGraphOfVector } from "../common/Helpers";
-import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   const { state, actions } = useStateMachine({
@@ -132,24 +131,18 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
 
   const setClickedVectorWrapper = (vector: string) => {
     currGraphRef.current?.stopLayout();
-    setTimeout(() => {
-      setClickedVector(vector);
-    }, 500);
+    setClickedVector(vector);
     
   }
 
   const setOpenTableWrapper = (open: boolean) => {
     currGraphRef.current?.stopLayout();
-    setTimeout(() => {
-      setOpenTable(open);
-    }, 500);
-  }
+    setOpenTable(open);
+  };
 
   const setThresholdsWrapper = (thresholds: threshMap) => {
     currGraphRef.current?.stopLayout();
-    setTimeout(() => {
-      setThresholds(thresholds);
-    }, 500);
+    setThresholds(thresholds);
   }
 
   return (
@@ -180,16 +173,14 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           <div className="graph-canvas">
             {error && <ErrorScreen />}
             {!error && openTable && <TableComponent data={graphData} />}
-            <div className={openTable ? "graph-canvas-hidden" : "graph-canvas-visible"}>
-              {!error && font && (
-                <CytoscapejsComponentself
-                  graphData={graphData}
-                  clickedVector={clickedVector}
-                  alertLoading={() => {}}
-                  ref={currGraphRef}
-                />
-              )}
-            </div>
+            {!error && !openTable && font && (
+              <CytoscapejsComponentself
+                graphData={graphData}
+                clickedVector={clickedVector}
+                alertLoading={() => {}}
+                ref={currGraphRef}
+              />
+            )}
           </div>
         </div>
       )}

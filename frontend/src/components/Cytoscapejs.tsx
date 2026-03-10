@@ -82,6 +82,9 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       },
     },
   ]);
+    // In CytoscapejsComponentself
+  const rafIdsRef = useRef<Set<number>>(new Set());
+  const isMountedRef = useRef(true);
   
   const [layout, setLayout] = useState<any>({
     name: supportedSettings.layouts.CIRCLE,
@@ -371,6 +374,56 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
     }
   };
 
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      rafIdsRef.current.forEach((id) => window.cancelAnimationFrame(id));
+      rafIdsRef.current.clear();
+      
+      const layout = layoutRef.current;
+      const cy = cyRef.current;
+
+      if (layout) {
+        layout.stop();
+        layout.removeAllListeners?.();
+        layoutRef.current = null;
+      }
+
+      cy?.stop(true, true);
+      // Don't destroy cy here — cytoscape.js React component manages that
+      // Just null the ref so stale callbacks can't reach it
+      cyRef.current = null;
+      
+      // Re-arm for the next render
+      isMountedRef.current = true;
+    };
+  }, [clickedVector]);
+
+  // Patch rAF on mount to track IDs
+  useEffect(() => {
+    const originalRaf = window.requestAnimationFrame;
+    const originalCaf = window.cancelAnimationFrame;
+
+    window.requestAnimationFrame = (cb) => {
+      const id = originalRaf((timestamp) => {
+        rafIdsRef.current.delete(id);
+        if (isMountedRef.current) cb(timestamp);
+        // If unmounted, silently drop the frame — no cb() call
+      });
+      rafIdsRef.current.add(id);
+      return id;
+    };
+
+    return () => {
+      isMountedRef.current = false;
+      // Cancel all pending frames CiSE may have queued
+      rafIdsRef.current.forEach((id) => originalCaf(id));
+      rafIdsRef.current.clear();
+      window.requestAnimationFrame = originalRaf;
+      window.cancelAnimationFrame = originalCaf;
+    };
+  }, []); // Only runs once on mount/unmount
+
   const stopLayout = () => {
     console.log("stopLayout");
     console.log("cyRef.current", cyRef.current);
@@ -378,16 +431,22 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
       const layout = layoutRef.current;
       const cy = cyRef.current;
 
+      // 1. Stop the layout FIRST and strip all its listeners
       if (layout) {
-        console.log("stopping layout");
         layout.stop();
-        layout.off();
+        layout.removeAllListeners?.(); // cise layout extends EventEmitter
       }
 
+      // 2. Stop ALL running animations on the cy instance
+      cy?.stop(true, true); // (clearQueue, jumpToEnd)
+
+      // 3. Only destroy cy AFTER layout is fully stopped
       if (cy && !cy.destroyed()) {
-        console.log("destroying cytoscape");
         cy.destroy();
       }
+
+      layoutRef.current = null;
+      cyRef.current = null;
     }
     catch (error) {
       console.error("Error stopping layout", error);
