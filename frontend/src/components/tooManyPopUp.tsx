@@ -21,12 +21,12 @@ const TooManyModal = ({clickedVector, thresholds, specifyVector}: {clickedVector
     return (
         <div className="tooManyModal">
           <div className="tooManyModal-content">
-            <p>{specifyVector ? 'The graph for ' + clickedVector : 'Your requested graph'} <b>will contain {state.tooManyModal[clickedVector]} nodes</b>. if this is a mistake please change the thresholds to filter more nodes.</p>
-            <p>if you wish to proceed anyway, please note that you may experience some performance issues</p>
+            <p>{specifyVector ? 'The graph for ' + clickedVector : 'The requested graph '} will contain <b>{state.tooManyModal[clickedVector]} nodes</b>. For better performance, we recommend adjusting the thresholds to reduce the number of nodes.</p>
+            <p>You may still continue, but rendering a large network may affect performance.</p>
             <br/>
-            <p>Note: This message will appear until there are at most {MAX_NODES_PER_GRAPH} nodes and it is individual to each graph</p>
+            <p>Note: This message appears when a graph exceeds {MAX_NODES_PER_GRAPH} nodes. The limit is applied individually to each graph.</p>
             <div className="threashold-row">
-              <label className="thresholdTitle" htmlFor="positiveThreshold">P. Threshold: </label>
+              <label className="thresholdTitle" htmlFor="positiveThreshold">Positive Threshold: </label>
               <input
                 id="positiveThreshold"
                 type="number"
@@ -38,7 +38,7 @@ const TooManyModal = ({clickedVector, thresholds, specifyVector}: {clickedVector
                 required
                 onChange={(e) => setTooManyThresholds({ ...tooManyThresholds, pos: Number(e.target.value) })}
               />
-              <label className="thresholdTitle" htmlFor="negativeThreshold">N. Threshold: </label>
+              <label className="thresholdTitle" htmlFor="negativeThreshold">Negative Threshold: </label>
 
               <input
                 id="negativeThreshold"

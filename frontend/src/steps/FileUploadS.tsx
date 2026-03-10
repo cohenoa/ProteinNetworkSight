@@ -192,48 +192,54 @@ const FileUploadStep: FC<IStepProps> = ({ step, goNextStep }) => {
   };
 
   const processMetaDataData = (metaDataFileData: any[][], thresholdsFileData: any[][]) => {
-    if (!metaDataFileData.length) return false;
-    if (!thresholdsFileData.length) return false;
-    let scoreThrehold: number = state.scoreThreshold;
-    let organism: OptionType = state.organism;
-    let numericalColumnPrefix: string = state.vectorsPrefix;
-    let namesColumn: string = state.idHeader;
-    metaDataFileData.forEach(row => {
-      if (row[0] == SAVED_STRING_SCORE_THRESHOLD_TITLE){
-        scoreThrehold = Number(row[1]);
-      }
-      if (row[0] == SAVED_ORGANISM_TITLE){
-        organism = {label: row[1], value: Number(row[2])};
-      }
-      if (row[0] == SAVED_NUMERIC_COLUMN_PREFIX_TITLE){
-        numericalColumnPrefix = row[1];
-      }
-      if (row[0] == SAVED_NAMES_COLUMN_TITLE){
-        namesColumn = row[1];
-      }
-    })    
-    
-    const headerRow = thresholdsFileData[0];
-    headerRow.shift();
-    const thresholds: { [key: string]: threshMap } = Object.fromEntries(
-      headerRow.map((header: any) => [header, {...defaultThresholds}])
-    );
-    console.log(thresholds);
-    thresholdsFileData.forEach(row => {
-      if (row[0] === SAVED_POS_THRESHOLD_TITLE){
-        for (let i = 0; i < headerRow.length; i++){
-          thresholds[headerRow[i]].pos = Number(row[i + 1]);
+    try{
+      let scoreThrehold: number = state.scoreThreshold;
+      let organism: OptionType = state.organism;
+      let numericalColumnPrefix: string = state.vectorsPrefix;
+      let namesColumn: string = state.idHeader;
+      metaDataFileData.forEach(row => {
+        if (row[0] == SAVED_STRING_SCORE_THRESHOLD_TITLE){
+          scoreThrehold = Number(row[1]);
         }
-      }
-      if (row[0] === SAVED_NEG_THRESHOLD_TITLE){
-        for (let i = 0; i < headerRow.length; i++){
-          thresholds[headerRow[i]].neg = Number(row[i + 1]);
+        if (row[0] == SAVED_ORGANISM_TITLE){
+          organism = {label: row[1], value: Number(row[2])};
         }
+        if (row[0] == SAVED_NUMERIC_COLUMN_PREFIX_TITLE){
+          numericalColumnPrefix = row[1];
+        }
+        if (row[0] == SAVED_NAMES_COLUMN_TITLE){
+          namesColumn = row[1];
+        }
+      })    
+      
+      const headerRow = thresholdsFileData[0].filter((header) => header !== namesColumn && String(header).startsWith(numericalColumnPrefix));
+      if (headerRow.length === 0){
+        throw new Error("No numerical columns found.");
       }
-    });
+      const thresholds: { [key: string]: threshMap } = Object.fromEntries(
+        headerRow.map((header: any) => [header, {...defaultThresholds}])
+      );
+      console.log(thresholds);
+      thresholdsFileData.forEach(row => {
+        if (row[0] === SAVED_POS_THRESHOLD_TITLE){
+          for (let i = 0; i < headerRow.length; i++){
+            thresholds[headerRow[i]].pos = Number(row[i + 1]);
+          }
+        }
+        if (row[0] === SAVED_NEG_THRESHOLD_TITLE){
+          for (let i = 0; i < headerRow.length; i++){
+            thresholds[headerRow[i]].neg = Number(row[i + 1]);
+          }
+        }
+      });
 
-    actions.updateSavedFileUpload({scoreThreshold: scoreThrehold, organism: organism, vectorsHeaders: headerRow, thresholds: thresholds, idHeader: namesColumn, vectorsPrefix: numericalColumnPrefix});
-    return true;
+      actions.updateSavedFileUpload({scoreThreshold: scoreThrehold, organism: organism, vectorsHeaders: headerRow, thresholds: thresholds, idHeader: namesColumn, vectorsPrefix: numericalColumnPrefix});
+      return true;
+    }
+    catch(e){
+      console.log(e);
+      return false;
+    }
   }
 
   function filterInvalidAndDuplicatData(data: any[][]): { filtered_data: any[][], num_invalid: number, num_duplicates: number } {
