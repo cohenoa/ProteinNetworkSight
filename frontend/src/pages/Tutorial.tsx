@@ -44,9 +44,10 @@ const Tutorial: FC = () => {
           <p className="t-p">
             ProteinNetworkSight is a web-based tool for constructing patient-specific protein interaction networks from user-provided gene or protein scores. 
             The platform integrates quantitative input data with interaction information retrieved from the STRING database to identify biologically relevant protein clusters. 
-            The resulting networks are further linked to the Cancer Drugs Database, enabling the exploration of potential therapeutic targets.
+            The resulting networks are further linked to the Cancer Drugs Database, enabling the exploration of potential therapeutic targets.<br/><br/>
+            * ProteinNetworkSight doesnt track user data or activity, requires no login and is available for free use.
           </p>
-          <p className="t-p"><a href={gitLink}>Github Repository</a></p>
+          <p className="t-p"><a href={gitLink}>Open Source Github Repository</a></p>
           <p className="t-p">ProteinNetworkSight integrates information from two external databases:</p>
           <ol type="a">
             <li className="t-li">
