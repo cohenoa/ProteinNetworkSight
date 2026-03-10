@@ -8,7 +8,7 @@ Frontend The frontend code is located in the frontend folder. It contains a Reac
 
 To run the frontend:
 
-cd frontend npm install npm start
+`cd frontend npm install npm start`
 
 The React app will start on http://localhost:3000.
 
@@ -40,9 +40,9 @@ Documentation More detailed documentation on the project structure, architecture
 
 for running the pruduction server you can use the following commands on the branch develop-docker: cd frontend docker build -t medmolnet-frontend .
 
-cd ../backend docker build -t medmolnet-backend .
+`cd ../backend docker build -t medmolnet-backend .`
 
-cd .. docker-compose up -d
+`cd .. docker-compose up -d`
 
 for creating your configuration of the nginx you will need to create a file called nginx.conf in the root folder of the project.
 
