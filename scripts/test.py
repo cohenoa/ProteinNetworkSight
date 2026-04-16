@@ -44,8 +44,8 @@ print(jsonObj)
 #             GREATEST(l.node_id_a, l.node_id_b) AS id2,
 #             l.combined_score::float / 1000.0 AS score
 #         FROM network.node_node_links l
-#         JOIN temp_ids a ON l.node_id_a = a.id
-#         JOIN temp_ids b ON l.node_id_b = b.id
+#         JOIN temp_protein_ids a ON l.node_id_a = a.id
+#         JOIN temp_protein_ids b ON l.node_id_b = b.id
 #         WHERE l.combined_score >= %s
 #         GROUP BY id1, id2, score;
 #     """
@@ -85,7 +85,7 @@ print(jsonObj)
 #     with con.cursor() as cur:
 #         sql = """ 
 #             SELECT t.id, p.annotation
-#             FROM temp_ids t
+#             FROM temp_protein_ids t
 #             LEFT JOIN items.proteins p ON p.protein_id = t.id
 #         """
 #         cur.execute(sql)
@@ -102,7 +102,7 @@ print(jsonObj)
 #         sql = """ 
 #             SELECT t.id, d.drug_name, d.drugBankID
 #             FROM items.drugs d
-#             LEFT JOIN temp_ids t ON d.protein_id = t.id
+#             LEFT JOIN temp_protein_ids t ON d.protein_id = t.id
 #         """
 #         cur.execute(sql)
 

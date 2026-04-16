@@ -84,12 +84,12 @@ proteins = {
 species_rows = [(9606, "Homo sapiens", "Homo sapiens", "eukaryota", "core", 19699)]
 
 with conn.cursor() as cur:
-    cur.execute("CREATE TEMP TABLE temp_ids (id INT);")
+    cur.execute("CREATE TEMP TABLE temp_protein_ids (id INT);")
     ids = list(proteins.values())
-    cur.executemany("INSERT INTO temp_ids (id) VALUES (%s)", [(i,) for i in ids])
+    cur.executemany("INSERT INTO temp_protein_ids (id) VALUES (%s)", [(i,) for i in ids])
 
     # ------------- PROTEINS ---------------
-    cur.execute("SELECT * FROM items.proteins WHERE protein_id IN (SELECT id FROM temp_ids);")
+    cur.execute("SELECT * FROM items.proteins WHERE protein_id IN (SELECT id FROM temp_protein_ids);")
     rows = cur.fetchall()
 
     write_csv_file(rows, "DB/Schemas_new/items/proteins/dev_data.csv", headers=[
@@ -104,7 +104,7 @@ with conn.cursor() as cur:
         ])
     
     # ------------- PROTEINS NAMES ---------------
-    cur.execute("SELECT * FROM items.proteins_names WHERE protein_id IN (SELECT id FROM temp_ids);")
+    cur.execute("SELECT * FROM items.proteins_names WHERE protein_id IN (SELECT id FROM temp_protein_ids);")
     rows = cur.fetchall()
 
     write_csv_file(rows, "DB/Schemas_new/items/proteins_names/dev_data.csv", headers=[
@@ -126,7 +126,7 @@ with conn.cursor() as cur:
         ])
     
     # ------------- NODE NODE LINKS ---------------
-    cur.execute("SELECT * FROM network.node_node_links WHERE node_id_a IN (SELECT id FROM temp_ids) AND node_id_b IN (SELECT id FROM temp_ids);")
+    cur.execute("SELECT * FROM network.node_node_links WHERE node_id_a IN (SELECT id FROM temp_protein_ids) AND node_id_b IN (SELECT id FROM temp_protein_ids);")
     rows = cur.fetchall()
 
     write_csv_file(rows, "DB/Schemas_new/network/node_node_links/dev_data.csv", headers=[

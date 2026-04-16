@@ -88,7 +88,7 @@ def add_info_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
     with con.cursor() as cur:
         sql = """ 
             SELECT t.id, p.annotation
-            FROM temp_ids t
+            FROM temp_protein_ids t
             LEFT JOIN items.proteins p ON p.protein_id = t.id
         """
         cur.execute(sql)
@@ -103,18 +103,38 @@ def add_info_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
 def add_drugs_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
     with con.cursor() as cur:
         sql = """ 
-            SELECT t.id, d.drug_name, d.drugBankID
-            FROM items.drugs d
-            LEFT JOIN temp_ids t ON d.protein_id = t.id
+            SELECT t.id, d.drug_id
+            FROM items.protein_drugs d
+            LEFT JOIN temp_protein_ids t ON d.protein_id = t.id
         """
         cur.execute(sql)
 
         rows = cur.fetchall()
 
-        for id, drugName, drugBankID in rows:
-            nodes = ids_to_nodes[id]
+        drug_info = {}
+        for p_id, d_id in rows:
+            nodes = ids_to_nodes[p_id]
+            if d_id not in drug_info:
+                drug_info[d_id] = {'targets': [p_id]}
+            else:
+                drug_info[d_id]['targets'].append(p_id)
             for node in nodes:
-                node.drug.append({"drugName": drugName, "drugBankID": drugBankID})
+                node.drug.append({"drugID": d_id})
+
+        columns = ['drug_id', 'drug_name', 'EMA', 'FDA', 'EN', 'WHO', 'Generic', 'Year', 'Other', 'DrugBank_ID', 'ChEMBL', 'ATC', 'Indications']
+        columns_str = ", ".join(columns)
+        sql = """ 
+            SELECT {}
+            FROM items.drugs d
+            WHERE d.drug_id IN ({})
+        """.format(columns_str, ",".join(drug_info.keys()))
+
+        rows = cur.fetchall()
+
+        for row in rows:
+            d_id = row[0]
+            for i in range(1, len(row)):
+                drug_info[d_id][row[i]] = columns[i]
 
 def make_nodes_list_optimized(id_to_nodes: dict[str, list[Node]]):
     nodes_list = []
@@ -133,8 +153,8 @@ def get_pairs_score_optimized(con: connection, threshold) -> list[tuple]:
             GREATEST(l.node_id_a, l.node_id_b) AS id2,
             l.combined_score::float / 1000.0 AS score
         FROM network.node_node_links l
-        JOIN temp_ids a ON l.node_id_a = a.id
-        JOIN temp_ids b ON l.node_id_b = b.id
+        JOIN temp_protein_ids a ON l.node_id_a = a.id
+        JOIN temp_protein_ids b ON l.node_id_b = b.id
         WHERE l.combined_score >= %s
         GROUP BY id1, id2, score;
     """

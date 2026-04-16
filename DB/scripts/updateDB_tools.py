@@ -314,6 +314,7 @@ def reset_tables(conn: connection, tables):
             else:
                 print(f"[{full_table_name}] does not exist → creating from {config_path}")
                 create_table(cur, schema, config_path)
+            conn.commit()
 
 # def reset_tables(conn: connection, tables):
 #     """
@@ -440,41 +441,41 @@ def sample_file(url, n_lines = 1000):
                     f.write(buffer.getvalue())
                 break
 
-def get_reverse_drugs_map(med_df : pd.DataFrame, columns: tuple, seperator, drugBankIdFormat: Literal["plane", "tag"], drugBankIdExceptions):
+def get_reverse_drugs_map(med_df : pd.DataFrame, columns: tuple, seperator, id_map: dict):
     target_product_map = defaultdict(list)
-    targetCol, productCol, infoLinkCol = columns
+    targetCol, productCol = columns
     for _, row in med_df.iterrows():
 
         if pd.isna(row[targetCol]): # Drugs with no targets are not relevant
             continue
         
-        drugBankId = get_drugbank_id(row[infoLinkCol], format=drugBankIdFormat)
-        if (drugBankId in drugBankIdExceptions):
-            drugBankId = None
+        # drugBankId = get_drugbank_id(row[infoLinkCol], format=drugBankIdFormat)
+        # if (drugBankId in drugBankIdExceptions):
+        #     drugBankId = None
             
         target_list = row[targetCol].split(seperator)
 
         for target in target_list:
-            target_product_map[str(target).strip()].append({
-                "name": str(row[productCol]).strip(),
-                "drugBankID": drugBankId
-            })
+            target_product_map[str(target).strip()].append({"id": id_map[str(row[productCol]).strip()]})
     return target_product_map
 
-def get_drugbank_id(value: str, format: Literal["plane", "tag"]):
-    if (value == "Not found in DrugBank"):
-        print("watch this")
-    if (format == "plane"):
-        if (value.find("Not found in DrugBank") != -1) or (value == ""):
-            return None
+def get_tag_value(value: str, format: Literal["plane", "tag"], null_value: list[str] = ["Not found in DrugBank"], additional_splits: list[str] = []):
+    if type(value) != str:
         return value
     if (format == "tag"):
         try:
-            return value.split(">")[1].split("<")[0]
+            value = value.split(">")[1].split("<")[0]
         except:
             return None
         
-# def update_table_batch(conn, table_name, rows_generator, batch_size):
+    for null_value in null_value:
+        if (value.find(null_value) != -1) or (value == ""):
+            return None
+        
+    for additional_split in additional_splits:
+        if (value.find(additional_split) != -1):
+            value = value.split(additional_split)[-1]
+    return value
     
     
 

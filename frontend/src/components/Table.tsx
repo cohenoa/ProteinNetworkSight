@@ -74,7 +74,7 @@ type row = {
   [K in columnsKey]: typeof columns[K]["type"] extends "number" ? number : string;
 };
 
-const TableComponent: FC<{data: ICustomGraphData}> = ({ data }) => {
+const TableComponent: FC<{data: ICustomGraphData, clickedVector: String}> = ({ data, clickedVector }) => {
   const { state, actions } = useStateMachine({updateSortTable});
   const [rowData, setRowData] = useState<row[]>([]);
   const initialExplanation = "click on a cell to read information about it"
@@ -145,7 +145,7 @@ const TableComponent: FC<{data: ICustomGraphData}> = ({ data }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "table.csv";
+    link.download = "table_" + clickedVector + ".csv";
     link.click();
   };
 

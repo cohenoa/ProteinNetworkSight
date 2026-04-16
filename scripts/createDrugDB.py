@@ -91,7 +91,7 @@ conn.close()
         # dblines.write("{}\t{}\t{}\n".format(key, value[0]["name"], value[0]["infoLink"]))
 
 # buf = StringIO("\n".join(id for id in clean_ids))
-# sql = "COPY temp_ids (id) FROM STDIN WITH (FORMAT text)"
+# sql = "COPY temp_protein_ids (id) FROM STDIN WITH (FORMAT text)"
 
 # dblines = StringIO("COPY items.drugs (protein_id, drug_name, infoLink) FROM STDIN WITH (FORMAT text, DELIMITER E'\\t');")
 

@@ -82,16 +82,16 @@ def cal_graph_data():
 
     with pgdb.get_connection() as con:
         with con.cursor() as cur:
-            cur.execute("CREATE TEMP TABLE temp_ids(idx serial, id integer)")
+            cur.execute("CREATE TEMP TABLE temp_protein_ids(idx serial, id integer)")
 
             buf = StringIO("\n".join(str(id) for id in clean_ids))
-            sql = "COPY temp_ids (id) FROM STDIN WITH (FORMAT text);"
+            sql = "COPY temp_protein_ids (id) FROM STDIN WITH (FORMAT text);"
             cur.copy_expert(sql, buf)
 
         nodes_list, links_list = build_Network(con, id_to_nodes, score_thresh)
 
         with con.cursor() as cur:
-            cur.execute("DROP TABLE temp_ids;")
+            cur.execute("DROP TABLE temp_protein_ids;")
     
     return json.dumps(
         {
@@ -121,16 +121,16 @@ def calc_all_graph_data():
 
             clean_ids, id_to_nodes = clean_data(proteins, ids, string_names, values_map, thresh_pos, thresh_neg)
             with con.cursor() as cur:
-                cur.execute("CREATE TEMP TABLE temp_ids(idx serial, id integer)")
+                cur.execute("CREATE TEMP TABLE temp_protein_ids(idx serial, id integer)")
 
                 buf = StringIO("\n".join(str(id) for id in clean_ids))
-                sql = "COPY temp_ids (id) FROM STDIN WITH (FORMAT text);"
+                sql = "COPY temp_protein_ids (id) FROM STDIN WITH (FORMAT text);"
                 cur.copy_expert(sql, buf)
 
             nodes_list, links_list = build_Network(con, id_to_nodes, score_thresh)
 
             with con.cursor() as cur:
-                cur.execute("DROP TABLE temp_ids;")
+                cur.execute("DROP TABLE temp_protein_ids;")
 
             allGraphs[key] = {
                 "nodes": [ob.__dict__ for ob in nodes_list],

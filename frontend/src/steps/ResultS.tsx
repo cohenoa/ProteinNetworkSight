@@ -172,7 +172,7 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
           </div>
           <div className="graph-canvas">
             {error && <ErrorScreen />}
-            {!error && openTable && <TableComponent data={graphData} />}
+            {!error && openTable && <TableComponent data={graphData} clickedVector={clickedVector} />}
             {!error && !openTable && font && (
               <CytoscapejsComponentself
                 graphData={graphData}
