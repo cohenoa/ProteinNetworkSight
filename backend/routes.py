@@ -7,14 +7,14 @@ from src.common.configuration import pgdb
 from flask_cors import CORS, cross_origin
 from io import StringIO
 import json
-import logging
+# import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s | %(levelname)s | %(message)s"
+# )
 
-logging.info("Flask app started")
+# logging.info("Flask app started")
 
 app = Flask(__name__)
 pgdb.init_app(app)
@@ -93,7 +93,6 @@ def cal_graph_data():
         with con.cursor() as cur:
             cur.execute("DROP TABLE temp_protein_ids;")
     
-    logging.log(logging.INFO, drug_info)
     return json.dumps(
         {
             "nodes": [ob.__dict__ for ob in nodes_list],

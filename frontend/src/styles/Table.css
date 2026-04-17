@@ -3,28 +3,30 @@
   width: 100%;
 }
 
-.drug-detail-modal{
-  /* background-color: blue; */
-  /* width: fit-content;
-  height: fit-content; */
+/* .drug-detail-modal{
+  border: black solid 2px;
+  background-color: white;
   max-width: 80vw;
   max-height: 50vh;
-  /* position: absolute; */
-  /* inset: 0; */
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* background-color: rgb(251, 152, 152); */
-  /* height: 500px;
-  width: 1100px; */
-  overflow: scroll;
+} */
 
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  pointer-events: auto; */
+.drug-detail-modal {
+  border: black solid 2px;
+  background-color: white;
+  max-width: 80vw;
+  max-height: 50vh;
+  width: 80vw;           /* give it a definite width too */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;         /* 👈 key change */
+  flex-direction: column;
 }
 
 .right{
@@ -69,15 +71,20 @@
 }
 
 .two-line-cell {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;      /* limit to 2 lines */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-  white-space: normal;        /* MUST be normal */
+  /* display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: horizontal;
+  overflow: auto;
+  max-height: calc(1.2em * 5); */
+
+  /* -webkit-box-orient: vertical; */
+  /* overflow: hidden; */
+  /* line-height: 1.4;
+  white-space: normal;
   word-break: break-word;
   cursor: text;
   user-select: text;
   align-items: center;
-  /* justify-content: center; */
+  justify-content: center; */
 }

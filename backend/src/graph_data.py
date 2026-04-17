@@ -1,6 +1,5 @@
 from src.common.configuration import connection
 from dataclasses import dataclass
-import logging
 from collections import defaultdict
 
 # import concurrent.futures
@@ -115,11 +114,11 @@ def add_drugs_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
         for p_id, d_id in rows:
             nodes = ids_to_nodes[p_id]
             if d_id not in drug_info:
-                drug_info[d_id] = {'targets': [p_id]}
-            else:
-                drug_info[d_id]['targets'].append(p_id)
+                drug_info[d_id] = {'targets': []}
             for node in nodes:
                 node.drug.append(d_id)
+                stringName = "(" + node.string_name + ")" if node.string_name != node.id else ""
+                drug_info[d_id]['targets'].append(node.id + stringName)
 
         columns = ['drug_id', 'drug_name', 'EMA', 'FDA', 'EN', 'WHO', 'Generic', 'Year', 'Other', 'DrugBank_ID', 'ChEMBL', 'ATC', 'Indications']
         columns_str = ", ".join(columns)

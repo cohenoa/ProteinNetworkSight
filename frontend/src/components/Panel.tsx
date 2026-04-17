@@ -129,6 +129,8 @@ const Panel: FC<IPanelProps> = ({ node, drugs, organism, onClickClose }) => {
       {isDrugDetailModalOpen && (
         <DrugDetailModal
           data={drugs}
+          main_target={String(node?.id)}
+          exitModal={() => setIsDrugDetailModalOpen(false)}
         />
       )}
     </div>

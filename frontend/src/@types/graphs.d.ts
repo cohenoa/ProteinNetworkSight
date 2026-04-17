@@ -37,6 +37,7 @@ export interface Drug_Info {
   ChEMBL: string,
   ATC: string,
   Indications: string
+  targets: string[]
 }
 
 export interface ICustomGraphData extends GraphData {
