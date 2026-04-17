@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState,useEffect, forwardRef, useImperativeHandle } from "react";
-import { ICustomLink, ICustomNode } from "../@types/graphs";
+import { Drug_Info, ICustomLink, ICustomNode } from "../@types/graphs";
 import { IGraphProps } from "../@types/props";
 import "../styles/Graph.css";
 import "../styles/Button.css";
@@ -59,7 +59,8 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
   const [curNodeColor, setCurNodeColor] = useState<{pos: SupportedNodeColor, neg: SupportedNodeColor}>({pos: supportedSettings.nodeColors.blue, neg: supportedSettings.nodeColors.red});
   const [curLayout, setCurLayout] = useState<SupportedLayout>(supportedSettings.layouts.CIRCLE);
   const [showingSTRINGNames, setShowingSTRINGNames] = useState<boolean>(false);
-
+  
+  const drugs_ref = useRef<any>(null);
   const layoutRef = useRef<any>(null);
 
   const [myStyle, setMyStyle] = useState<CytoscapeStyle[]>([
@@ -149,6 +150,12 @@ const CytoscapejsComponentself = forwardRef<HTMLDivElement, IGraphProps>(({graph
         const node = event.target;
         console.log("clicked node", node.id());
         const clickedNode = (graphData.nodes as ICustomNode[]).find((n: ICustomNode) => n.id === node.id());
+        if (!clickedNode) return;
+        const drug_ids = clickedNode.drug;
+        console.log(drug_ids);
+        drugs_ref.current = Object.entries(graphData.drugs as {[key: number]: Drug_Info})
+          .filter(([key, value]) => clickedNode?.drug?.includes(Number(key)))
+          .map(([key, value]) => {return {...value, drug_id: Number(key)}});
         setSelectedNode({...clickedNode} as ICustomNode);
         setOpenPanel(true);
       });
@@ -590,7 +597,7 @@ return (
     ) : (
       <>
         {openPanel && (
-          <Panel node={selectedNode} organism={state.organism} onClickClose={handleOnclickClosePanel} />
+          <Panel node={selectedNode} drugs={drugs_ref.current} organism={state.organism} onClickClose={handleOnclickClosePanel} />
         )}
         {openContextMenu && (
           <ContextMenu

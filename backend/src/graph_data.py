@@ -105,7 +105,7 @@ def add_drugs_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
         sql = """ 
             SELECT t.id, d.drug_id
             FROM items.protein_drugs d
-            LEFT JOIN temp_protein_ids t ON d.protein_id = t.id
+            JOIN temp_protein_ids t ON d.protein_id = t.id
         """
         cur.execute(sql)
 
@@ -119,22 +119,27 @@ def add_drugs_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
             else:
                 drug_info[d_id]['targets'].append(p_id)
             for node in nodes:
-                node.drug.append({"drugID": d_id})
+                node.drug.append(d_id)
 
         columns = ['drug_id', 'drug_name', 'EMA', 'FDA', 'EN', 'WHO', 'Generic', 'Year', 'Other', 'DrugBank_ID', 'ChEMBL', 'ATC', 'Indications']
         columns_str = ", ".join(columns)
         sql = """ 
             SELECT {}
-            FROM items.drugs d
+            FROM items.drugs_info d
             WHERE d.drug_id IN ({})
-        """.format(columns_str, ",".join(drug_info.keys()))
+        """.format(columns_str, ",".join(map(str, drug_info.keys())))
+
+        
+        cur.execute(sql)
 
         rows = cur.fetchall()
 
         for row in rows:
             d_id = row[0]
             for i in range(1, len(row)):
-                drug_info[d_id][row[i]] = columns[i]
+                drug_info[d_id][columns[i]] = row[i]
+
+        return drug_info
 
 def make_nodes_list_optimized(id_to_nodes: dict[str, list[Node]]):
     nodes_list = []
@@ -194,9 +199,9 @@ def make_links_list_optimized(con: connection, score_thresh, id_to_nodes):
 
 def build_Network(con, ids_to_nodes, score_thresh):
     add_info_optimized(con, ids_to_nodes)
-    add_drugs_optimized(con, ids_to_nodes)
+    drug_info = add_drugs_optimized(con, ids_to_nodes)
 
     links_list = make_links_list_optimized(con, score_thresh, ids_to_nodes)
     nodes_list = make_nodes_list_optimized(ids_to_nodes)
 
-    return nodes_list, links_list
+    return nodes_list, links_list, drug_info

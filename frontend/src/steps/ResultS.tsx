@@ -30,6 +30,7 @@ const Result: FC<IStepProps> = ({ step, goNextStep }) => {
   const [graphData, setGraphData] = useState<ICustomGraphData>({
     nodes: [],
     links: [],
+    drugs: {},
   });
 
   const [missingNodes, setMissingNodes] = useState<Missing>([]);

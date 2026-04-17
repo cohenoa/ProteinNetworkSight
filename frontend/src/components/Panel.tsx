@@ -1,34 +1,46 @@
 import { FC } from "react";
+import { Drug_Info } from "../@types/graphs";
+import DrugDetailModal from "./DrugDetailModal";
 import { IPanelProps } from "../@types/props";
 import { useState } from "react";
 import "../styles/Panel.css";
+import { set } from "idb-keyval";
 
-const Panel: FC<IPanelProps> = ({ node, organism, onClickClose }) => {
+const Panel: FC<IPanelProps> = ({ node, drugs, organism, onClickClose }) => {
 
   const [isLoadingUniprot, setIsLoadingUniprot] = useState(false);
+  const [isDrugDetailModalOpen, setIsDrugDetailModalOpen] = useState(false);
 
   function getDrugComponent() {
     if (node == undefined || node.drug == undefined || node.drug.length == 0) {
-      return "drug not found";
+      return "drugs not found";
     }
-    return node.drug.map((drug, index) => {
-      const key = drug.drugBankID ?? `${drug.drugName}-${index}`;
+    console.log(drugs);
+    const drugsComponent = drugs.map((drug, index) => {
+      const key = drug.drug_id;
       const ending = index == node.drug.length - 1 ? "" : ", ";
 
-      if (drug.drugBankID == undefined || drug.drugBankID == null || drug.drugBankID == "None"){
+      if (drug.DrugBank_ID == undefined || drug.DrugBank_ID == null || drug.DrugBank_ID == "None"){
         return (
           <span className="paragraph-style" key={key} style={{color: "black"}}>
-            {drug.drugName}{ending}
+            {drug.drug_name}{ending}
           </span>
         );
       }
-      const link = "https://go.drugbank.com/drugs/" + drug.drugBankID;
+      const link = "https://go.drugbank.com/drugs/" + drug.DrugBank_ID;
       return (
         <span key={key}>
-          <a href={link} target="_blank" rel="noopener noreferrer">{drug.drugName}</a>{ending}
+          <a href={link} target="_blank" rel="noopener noreferrer">{drug.drug_name}</a>{ending}
         </span>
       );
-    });
+    })
+
+    drugsComponent.push(
+      <button onClick={() => setIsDrugDetailModalOpen(true)}>
+        open full detail list
+      </button>
+    )
+    return drugsComponent;
   }
 
   async function handleUniprotLinkClick() {
@@ -113,8 +125,12 @@ const Panel: FC<IPanelProps> = ({ node, organism, onClickClose }) => {
           <span className="panel-container-span">Links:</span>
           {node?.links.join(', ')}
         </p>
-       
       </div>
+      {isDrugDetailModalOpen && (
+        <DrugDetailModal
+          data={drugs}
+        />
+      )}
     </div>
   );
 };

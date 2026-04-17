@@ -54,7 +54,7 @@ const columns: { [key: string]: ColumnConfig } = {
   },
 
   "Drugs": {
-    value: (node: ICustomNode) => node.drug.length !== 0 ? node.drug.map((d) => d.drugName).join(", ") : "drug not found",
+    value: (node: ICustomNode) => node.drug.length !== 0 ? node.drug.map((d) => String(d)).join(", ") : "drug not found",
     type: "string",
     explanation: "Drug targeting this node (see more in top bar)",
     flex: 1,

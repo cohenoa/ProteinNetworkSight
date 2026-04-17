@@ -7,14 +7,14 @@ from src.common.configuration import pgdb
 from flask_cors import CORS, cross_origin
 from io import StringIO
 import json
-# import logging
+import logging
 
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s | %(levelname)s | %(message)s"
-# )
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
 
-# logging.info("Flask app started")
+logging.info("Flask app started")
 
 app = Flask(__name__)
 pgdb.init_app(app)
@@ -88,15 +88,17 @@ def cal_graph_data():
             sql = "COPY temp_protein_ids (id) FROM STDIN WITH (FORMAT text);"
             cur.copy_expert(sql, buf)
 
-        nodes_list, links_list = build_Network(con, id_to_nodes, score_thresh)
+        nodes_list, links_list, drug_info = build_Network(con, id_to_nodes, score_thresh)
 
         with con.cursor() as cur:
             cur.execute("DROP TABLE temp_protein_ids;")
     
+    logging.log(logging.INFO, drug_info)
     return json.dumps(
         {
             "nodes": [ob.__dict__ for ob in nodes_list],
             "links": [ob.__dict__ for ob in links_list],
+            "drugs": drug_info
         }
     )
 
@@ -127,7 +129,7 @@ def calc_all_graph_data():
                 sql = "COPY temp_protein_ids (id) FROM STDIN WITH (FORMAT text);"
                 cur.copy_expert(sql, buf)
 
-            nodes_list, links_list = build_Network(con, id_to_nodes, score_thresh)
+            nodes_list, links_list, drug_info = build_Network(con, id_to_nodes, score_thresh)
 
             with con.cursor() as cur:
                 cur.execute("DROP TABLE temp_protein_ids;")
@@ -135,6 +137,7 @@ def calc_all_graph_data():
             allGraphs[key] = {
                 "nodes": [ob.__dict__ for ob in nodes_list],
                 "links": [ob.__dict__ for ob in links_list],
+                "drugs": [ob.__dict__ for ob in drug_info]
             }
     
     return json.dumps(allGraphs)

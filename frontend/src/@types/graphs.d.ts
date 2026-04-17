@@ -6,7 +6,7 @@ export interface ICustomNode extends NodeObject {
   info: string;
   color: string;
   size: number;
-  drug: drug[];
+  drug: number[];
   links: string[];
   linksWeights: number;
 }
@@ -23,9 +23,26 @@ export interface ICustomLink extends LinkObject {
   target?: any;
 }
 
+export interface Drug_Info {
+  drug_id: number,
+  drug_name: string,
+  EMA: boolean,
+  FDA: boolean,
+  EN: boolean,
+  WHO: boolean,
+  Generic: boolean,
+  Year: integer,
+  Other: string,
+  DrugBank_ID: string,
+  ChEMBL: string,
+  ATC: string,
+  Indications: string
+}
+
 export interface ICustomGraphData extends GraphData {
   nodes: ICustomNode[];
   links: ICustomLink[];
+  drugs: {[key: number]: Drug_Info};
 }
 
 export interface ICustomAllGraphData {

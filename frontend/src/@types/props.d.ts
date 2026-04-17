@@ -2,7 +2,7 @@ import { Font } from "three/examples/jsm/loaders/FontLoader";
 import { IOthers } from "./forms";
 import { Missing, threshMap } from "./global";
 import { SupportedLayout, SupportedNodeColor, SupportedNodeSize, SupportedOpacity } from "../common/GraphSettings";
-import { ICustomNode } from "./graphs";
+import { Drug_Info, ICustomNode } from "./graphs";
 /*
   This file define all the props interface - the argument for components.
 */
@@ -54,6 +54,7 @@ export interface IStepProps {
 
 export interface IPanelProps {
   node: ICustomNode | null;
+  drugs: Drug_Info[];
   organism: OptionType;
   onClickClose: () => void;
 }

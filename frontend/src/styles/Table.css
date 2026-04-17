@@ -2,6 +2,31 @@
   height: calc(100% - 55px);
   width: 100%;
 }
+
+.drug-detail-modal{
+  /* background-color: blue; */
+  /* width: fit-content;
+  height: fit-content; */
+  max-width: 80vw;
+  max-height: 50vh;
+  /* position: absolute; */
+  /* inset: 0; */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: rgb(251, 152, 152); */
+  /* height: 500px;
+  width: 1100px; */
+  overflow: scroll;
+
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: auto; */
+}
+
 .right{
   float: right;
 }
