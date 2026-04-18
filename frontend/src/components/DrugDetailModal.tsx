@@ -70,13 +70,14 @@ interface ColumnConfig {
   cellRendererParams?: { buildUrl?: (value: string) => string };
 }
 
-const booleanCellValue = (value: boolean) => (value ? "V" : "X");
+const booleanCellValue = (value: boolean) => (value ? "V" : "");
 
 const columns: { [key: string]: ColumnConfig } = {
   "Drug Name": {
     value: (drug: Drug_Info) => String(drug.drug_name),
     type: "number",
-    explanation: "The official of the drug",
+    maxWidth: 250,
+    explanation: "The name of the drug",
   },
   "Drug Bank ID": {
     value: (drug: Drug_Info) => String(drug.DrugBank_ID),
@@ -120,7 +121,7 @@ const columns: { [key: string]: ColumnConfig } = {
     value: (drug: Drug_Info) => booleanCellValue(drug.EN),
     type: "boolean",
     maxWidth: 90,
-    explanation: "Approved by EN",
+    explanation: "Approved by Euro nationally",
   },
   "WHO": {
     value: (drug: Drug_Info) => booleanCellValue(drug.WHO),
@@ -138,12 +139,15 @@ const columns: { [key: string]: ColumnConfig } = {
   "Targets in Network": {
     value: (drug: Drug_Info) => String(drug.targets.join(", ")),
     type: "string",
-    explanation: "The drugs also targets these nodes in the network",
+    flex: 1,
+    cellRenderer: ExpandableCellRenderer,
+    minWidth: 200,
+    explanation: "The drug also targets these nodes in the network",
   },
   "Indications": {
     value: (drug: Drug_Info) => String(drug.Indications),
     type: "string",
-    explanation: "The indication of the drug",
+    explanation: "The indications of the drug",
     flex: 1,
     minWidth: 300,
     cellRenderer: ExpandableCellRenderer,
@@ -167,15 +171,11 @@ const DrugDetailModal: FC<{ data: Drug_Info[], main_target: string, exitModal: (
       flex: col.flex,
       cellRenderer: col.cellRenderer,
       cellRendererParams: col.cellRendererParams,
-      // Allow rows to grow to fit expanded content
       autoHeight: true,
-      // autoHeight: key === "Indications" ? true : undefined,
-      // Prevent the column from being too narrow to read
       minWidth: col.minWidth,
       maxWidth: col.maxWidth,
-      // maxWidth: col.type === "boolean" ? 90 : undefined,
-      // minWidth: key === "Indications" ? 220 : undefined,
-      wrapText: key === "Indications" ? true : undefined,
+      wrapText: key === "Indications" || key === "Targets in Network" ? true : undefined,
+      cellStyle: {wordBreak: 'normal'}
     }))
   );
 
