@@ -131,7 +131,7 @@ const columns: { [key: string]: ColumnConfig } = {
     
   },
   "Year": {
-    value: (drug: Drug_Info) => String(drug.Year),
+    value: (drug: Drug_Info) => drug.Year == 0 ? "" : String(drug.Year),
     type: "number",
     maxWidth: 100,
     explanation: "Year of approval",

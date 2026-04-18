@@ -4,7 +4,7 @@ from DB.scripts.updateDB_tools import open_conn, get_reverse_drugs_map, insert_r
 from yaml import safe_load
 import requests
 
-with open_conn("DB/database.example.ini") as conn:
+with open_conn("DB/database.prod.ini") as conn:
     reset_tables(conn, tables={"items.drugs_info": None, "items.protein_drugs": None})
 
 with open("DB/Schemas_new/items/drugs/sources.yaml", "r") as f:
@@ -15,12 +15,8 @@ source["wanted_columns"] = [source["must_columns"][1]] + source["wanted_columns"
 response = requests.get(source['url'])
 df = pd.read_csv(StringIO(response.text), sep='\t')
 
-a = "Cervical Cancer Metastatic; Metastatic Colorectal Cancer (MCRC); Metastatic Non-Squamous Non-Small Cell Lung Cancer; Metastatic Renal Cell Carcinoma; Persistent Cervical Cancer; Recurrent Cervical Cancer; Recurrent Glioblastoma; Stage III epithelial ovarian cancer following initial surgical resection; Stage IV epithelial ovarian cancer following initial surgical resection; Fallopian tube cancer following initial surgical resection; Locally advanced nonsquamous non-small cell lung cancer; Primary peritoneal cancer following initial surgical resection; Recurrent Non-Squamous Non-Small Cell Lung Cancer; Recurrent Platinum-Sensitive Epithelial Ovarian Cancer; Recurrent Platinum-resistant Epithelial Ovarian Cancer; Recurrent platinum drug resistant Fallopian tube cancer; Recurrent platinum drug resistant primary peritoneal cancer; Recurrent platinum sensitive primary peritoneal cancer; Recurrent platinum-sensitive fallopian tube cancer; Unresectable Non-Squamous Non-Small-Cell Lung Cancer"
-print(len(a))
-
 df = df.dropna(subset=[source["must_columns"][0]])
-print(df.shape[0])
-df["Year"] = df["Year"].fillna(-1).astype(int)
+df["Year"] = df["Year"].fillna(0).astype(int)
 df = df.replace({"Y": True, "N": False})
 df["EMA"] = df["EMA"].fillna(False).astype(bool)
 df["FDA"] = df["FDA"].fillna(False).astype(bool)
@@ -30,7 +26,7 @@ df["Generic"] = df["Generic"].fillna(False).astype(bool)
 df["Indications"] = df["Indications"].apply(lambda x: "\"{}\"".format(str(x).replace("\t", " ").replace("\n", " ")))
 
 drug_name_id_map = {}
-with open_conn("DB/database.example.ini") as conn:
+with open_conn("DB/database.prod.ini") as conn:
     cur = conn.cursor()
     rows = df[source["wanted_columns"]].values.tolist()
     buf = StringIO()
@@ -60,7 +56,7 @@ unique_protein_names = set([key for key in target_product_map.keys()])
 
 print(unique_protein_names)
 
-with open_conn("DB/database.example.ini") as conn:
+with open_conn("DB/database.prod.ini") as conn:
     cur = conn.cursor()
     # init names table for faster search
     cur.execute("CREATE TEMP TABLE temp_names(name varchar(50));")
