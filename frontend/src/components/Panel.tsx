@@ -37,7 +37,7 @@ const Panel: FC<IPanelProps> = ({ node, drugs, organism, onClickClose }) => {
 
     drugsComponent.push(
       <button onClick={() => setIsDrugDetailModalOpen(true)}>
-        open full detail list
+        view additional information
       </button>
     )
     return drugsComponent;

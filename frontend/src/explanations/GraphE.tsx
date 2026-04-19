@@ -42,7 +42,11 @@ const GraphExplanation: FC = () => {
         </li>
         <li className="must-item">
           <i className="fa fa-info" style={{ fontSize: "25px" }} />
-          Click a node to view its details, and access related resources(UniProt, drugBank)
+          Click a node to view its details, and access related resources (UniProt, drugBank)
+        </li>
+        <li className="must-item">
+          <i className="fa fa-info" style={{ fontSize: "25px" }} />
+          Click the button at the end of the drug list in the node details to view additional information about drugs targeting the selected node.
         </li>
         <li className="must-item">
           <i className="fa fa-question-circle-o" style={{ color: "black" }} />

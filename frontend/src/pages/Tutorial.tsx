@@ -4,6 +4,7 @@ import example_rows from "../assets/tutorial images/example_rows.png";
 import set_params from "../assets/tutorial images/set_params.png";
 import graph from "../assets/tutorial images/graph.png";
 import graph_bar from "../assets/tutorial images/graph_bar.png";
+import drugs_info from "../assets/tutorial images/drugs_info.png";
 import others from "../assets/tutorial images/others.png";
 import protein_names from "../assets/tutorial images/protein_names.png";
 import table from "../assets/tutorial images/table.png";
@@ -86,13 +87,6 @@ const Tutorial: FC = () => {
             Each row should correspond to a protein or gene, and each column should represent a feature.
             The file must contain no more than {MAX_LINES_PER_FILE} rows. One column should contain protein or gene identifiers, while additional columns should contain numeric values representing gene/protein scores or quantitative metrics.
           </p>
-          
-            {/* where each row represents a protein/gene and the columns are features to be analysed. 
-            The file should contain a column of protein/gene names as well as additional column(s) of numeric values. 
-            These numeric values represent gene/protein scores or quantitative metrics—such as loadings obtained from Principal Component Analysis (PCA), 
-            weights from information-theoretic analyses, or simple fold changes. The first line is the header, 
-            specifying column names. Note that the names of the numeric columns should start with the same prefix.
-          </p> */}
           <p className="t-p">
             The first row must contain column headers.
             Numeric columns intended for analysis must share a common prefix.
@@ -101,13 +95,6 @@ const Tutorial: FC = () => {
             An <button className="btn--here" onClick={downloadExampleFile}>example file</button>
             &nbsp;is provided (adapted from Vasudevan et al., npj Precision Oncology, 2021, Supplementary Data 1). 
             In this example, the gene identifier column is labeled “UID”, and the numeric columns begin with the prefix “G”, followed by an index.
-            {/* &nbsp;you can find an example file (fetched from Vasudevan et al., npj Precision Oncology, 2021, Supplementary Data 1). 
-            For example, here are 10 rows of the example file, 
-            where the gene column is named “UID” and the header of the numerical columns start with “G”, followed by some index. In this specific example, 
-            the columns labeled "G" represent the weights of proteins participating in computed patterns as dictated by 
-            the information-theoretic analysis presented in Vasudevan et al. 
-            However, this format is flexible: the "G" columns can be replaced by any other scores, 
-            coefficients, or fold changes, depending on the specific method the user employs to find co-expression patterns. */}
           </p>
           <p className="t-p">
             In this dataset, the G columns represent protein weights derived from the information-theoretic analysis described in Vasudevan et al. 
@@ -117,7 +104,6 @@ const Tutorial: FC = () => {
             <img className="t-img" src={example_rows} alt="example_rows" />
           </a>
         </div>
-        {/* Setting parameters and thresholds DIV */}
         <div>
           <h2 className="t-h2">Setting parameters and thresholds </h2>
           <p className="t-p">In this step the user should specify:</p>
@@ -185,24 +171,10 @@ const Tutorial: FC = () => {
             Edges are derived from STRING, and edge width represents the probability of a protein-protein interaction.
             Results can be viewed and downloaded in either a tabular or network format.
             The network view provides an interactive visualization, allowing users to zoom, drag nodes, and explore the network structure.
-            {/* The resulting network comprises nodes representing the input score
-            values, where node size is proportional to the input protein score
-            value. The edges are derived from STRING-db, with edge width
-            indicating the probability of a protein-protein interaction. The
-            information can be viewed and downloaded in either a tabular or network format.
-            The network format provides an interactive visualization of the network online, 
-            allowing for zooming, dragging, and more complex manipulation of the
-            network. */}
           </p>
           <h3 className="t-h3">Graph representation</h3>
           <p className="t-p">
             The graphical representation displays a network in which each node represents a protein.
-            {/* Node size is directly proportional to the input
-            value, and node color indicates the sign of the value (blue for positive
-            values and red for negative values). The edges connecting each pair of
-            proteins represent functional protein-protein interactions, with the
-            width of each edge corresponding to the probability of such an
-            interaction. */}
           </p>
           <ul>
             <li className="t-li">Node size is proportional to the input score value.</li>
@@ -217,12 +189,6 @@ const Tutorial: FC = () => {
           </a>
           <p className="t-p">
             In the illustrated example, multiple protein interactions are shown. For example:, 
-            
-            {/* TIGAR is represented with a positive, sizeable value (indicated by the blue color) 
-            and interacts with LKB1, which also has a positive but smaller value, as well as with GAPDH, 
-            which is represented by a negative value (indicated by the red color). 
-            Additionally, it can be inferred that ACC1 interacts with both BCL2 and FASN, with BCL2 demonstrating 
-            a higher likelihood of interaction, as evidenced by the thicker edge connecting the two proteins. */}
           </p>
           <ul>
             <li className="t-li">TIGAR appears with a large positive value (blue node) and interacts with GAPDH, which has a smaller negative value.</li>
@@ -239,11 +205,18 @@ const Tutorial: FC = () => {
               <li className="t-li">Nodes worth reviewing - A list of nodes in the graph that the user might have missed validating their accuracy, because they were not inserted manually</li>
             </ol>
           </p>
+          <a href={drugs_info} target="_blank" rel="noopener noreferrer">
+            <img className="t-img" src={drugs_info} alt="drugs_info"/>
+          </a>
+          <p className="t-p">
+            After identifying a key node of interest, open the full drug details list to explore potential drug combinations.<br/>
+          </p>
           <p className="t-p">
             The right-click context menu in the graph visualization allows users to modify visual properties and customize the appearance of the network.
           </p>
           <p className="t-p">
             Multiple layout algorithms are available to organize the graph and reveal structural patterns.<br/>
+            These layouts help identify biologically relevant proteins in each network, that may guide the selection of effective drug combinations.<br/><br/>
             Presented below are three fundamental options that are broadly applicable to any graph.<br/>
           </p>
           <a href={Menu_Geometric_Layout} target="_blank" rel="noopener noreferrer">
@@ -267,9 +240,6 @@ const Tutorial: FC = () => {
             Additionally, for users who prefer a more complex approach, the tool also provides a custom clustering algorithm, called LCSL (Layered Cluster Spiral Layout).
             Unlike traditional layouts that rely mainly on link counts, LCSL incorporates link weights when identifying clusters. Nodes within each cluster are arranged in a spiral pattern based on the weighted connectivity of each node.
             This layout is designed to facilitate the identification of important proteins and their associated therapeutic targets.
-            {/* we provide a novel, hand-crafted cluster finding algorithm - named LCSL(Layered Cluster Spiral Layout) - 
-            which utilizes the link weights(as opposed to link counts like previous layouts) to identify clusters and organize each cluster in a spiral pattern, 
-            taking into account the weights of each node's links at every step. This algorithm is designed to facilitate the discovery and prioritization of key proteins and their respective drugs for optimal therapeutic effect. */}
           </p>
           <p className="t-p">
             For users who prefer a simpler apprach, we also provide a Random layout, which randomly places the nodes on the graph.
