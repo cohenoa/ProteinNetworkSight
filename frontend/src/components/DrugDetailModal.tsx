@@ -103,7 +103,7 @@ const columns: { [key: string]: ColumnConfig } = {
     value: (drug: Drug_Info) => String(drug.ATC),
     type: "string",
     maxWidth: 130,
-    explanation: "The ATC code of the drug",
+    explanation: "The ATC (Anatomical Therapeutic Chemical) code of the drug",
   },
   "EMA": {
     value: (drug: Drug_Info) => booleanCellValue(drug.EMA),
@@ -121,7 +121,7 @@ const columns: { [key: string]: ColumnConfig } = {
     value: (drug: Drug_Info) => booleanCellValue(drug.EN),
     type: "boolean",
     maxWidth: 90,
-    explanation: "Approved by Euro nationally",
+    explanation: "Approved by EN (Euro Nationally)",
   },
   "WHO": {
     value: (drug: Drug_Info) => booleanCellValue(drug.WHO),
