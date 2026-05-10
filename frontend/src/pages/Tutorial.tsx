@@ -33,6 +33,8 @@ const Tutorial: FC = () => {
   const cytoscapeLayoutsLink = "https://blog.js.cytoscape.org/2020/05/11/layouts/#choice-of-layout";
   const uniProtLink = "https://www.uniprot.org/";
   const gitLink = "https://github.com/cohenoa/ProteinNetworkSight_working";
+  const articleLink = "https://doi.org/10.1093/nar/gkag477";
+  const codeOfRelease = "https://zenodo.org/records/19881700";
   return (
     <div className="page-container">
       <div className="tutorial-container">
@@ -48,10 +50,10 @@ const Tutorial: FC = () => {
             The resulting networks are further linked to the Cancer Drugs Database, enabling the exploration of potential therapeutic targets.<br/>
           </p>
           <p className="t-p">If you use ProteinNetworkSight, please cite: <br/>
-            <a href="https://doi.org/10.1093/nar/gkag477">Nahor O, Migdal N, Gibli A, Tsvitman T, Eldad A, Raveh S, Polinovski G, Zaid D, Kravchenko-Balasha N, Cohen NE. ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization. Nucleic Acids Research. 2026.</a>
+            <a href={articleLink}>Nahor O, Migdal N, Gibli A, Tsvitman T, Eldad A, Raveh S, Polinovski G, Zaid D, Kravchenko-Balasha N, Cohen NE. ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization. Nucleic Acids Research. 2026.</a>
           </p>
           <p className="t-p">* ProteinNetworkSight doesnt track user data or activity, requires no login and is available for free use.</p>
-          <p className="t-p"><a href={gitLink}>Open Source Github Repository</a></p>
+          <p className="t-p">Open source code: <a href={gitLink}>Active Github Repository</a>, <a href={codeOfRelease}>Initial release</a></p>
           <p className="t-p">ProteinNetworkSight integrates information from three external databases:</p>
           <ol type="a">
             <li className="t-li">

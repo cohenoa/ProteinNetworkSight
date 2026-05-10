@@ -30,7 +30,8 @@ export const HomePage: FC = () => {
         </Link>
       </div>
 
-      <h5>Cite us: [Article]</h5>
+      <h5>Cite us: <br/>
+        ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization. Nucleic Acids Research. 2026. <a href="https://doi.org/10.1093/nar/gkag477">https://doi.org/10.1093/nar/gkag477</a></h5>
       <h5>
         An open-source of the tool is available&nbsp;
          <button

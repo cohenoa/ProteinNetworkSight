@@ -5,7 +5,6 @@
   height: 100%;
   width: 100%;
   padding-left: 100px;
-  /* padding-bottom: 100px; */
 }
 
 #video{
@@ -33,6 +32,8 @@
   font-weight: bold;
   font-size:  var(--big-text);
   margin-top: 50px;
+  width: 50%;
+  min-width: 500px;
 }
 
 .prompt > p {
@@ -83,7 +84,6 @@
   margin-bottom: 40px;
   color: var(--text-blue);
   font-size: var(--big-text);
-  /* background-color: green; */
 }
 
 .credits-list {
@@ -128,34 +128,7 @@
   background-color: rgba(255, 255, 255, 0.758);
   margin: auto;
 }
+
 .first-info{
   margin-right: 110px;
 }
-/* 
-@media screen and (max-width: 960px) {
-  .prompt > h1 {
-    font-size: 40px;
-  }
-  .prompt > h5 {
-    font-size: 15px;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .prompt > h1 {
-        font-size: 40px;
-    }
-    .prompt > h5 {
-        font-size: 15px;
-    }
-  
-
-    .btn-mobile {
-        display: block;
-        text-decoration: none;
-    }
-
-    .btn {
-        width: 100%;
-    }
-} */
