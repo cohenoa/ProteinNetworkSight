@@ -1,3 +1,6 @@
+If you use ProteinNetworkSight, please cite:
+Nahor O, Migdal N, Gibli A, Tsvitman T, Eldad A, Raveh S, Polinovski G, Zaid D, Kravchenko-Balasha N, Cohen NE. ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization. Nucleic Acids Research. 2026. https://doi.org/10.1093/nar/gkag477
+
 # Code to accompany the paper: "ProteinNetworkSight: A User-Friendly Platform for Transforming Co-Expression Patterns into Actionable Therapeutic Insights Through Interactive Network Visualization"
 
 For running the development server you can use the following commands on the branch layout-chooser.
