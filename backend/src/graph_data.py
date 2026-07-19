@@ -1,7 +1,7 @@
 from src.common.configuration import connection
 from dataclasses import dataclass
 from collections import defaultdict
-
+# import logging
 # import concurrent.futures
 
 RED = "#ff0000"
@@ -120,6 +120,8 @@ def add_drugs_optimized(con: connection, ids_to_nodes: dict[str, list[Node]]):
                 stringName = "(" + node.string_name + ")" if node.string_name != node.id else ""
                 drug_info[d_id]['targets'].append(node.id + stringName)
 
+        if (len(drug_info) == 0):
+            return drug_info
         columns = ['drug_id', 'drug_name', 'EMA', 'FDA', 'EN', 'WHO', 'Generic', 'Year', 'Other', 'DrugBank_ID', 'ChEMBL', 'ATC', 'Indications']
         columns_str = ", ".join(columns)
         sql = """ 
